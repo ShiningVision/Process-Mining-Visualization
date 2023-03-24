@@ -1,0 +1,5 @@
+import unittest
+from mining_algorithms.causal_net import CausalNet
+
+class TestCausalNet(unittest.TestCase):
+    pass
