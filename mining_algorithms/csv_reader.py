@@ -1,6 +1,6 @@
 import pandas as pd
 '''
-For reading in csv files. Returns a dictionary of all cases.
+For reading in csv files. Returns a list of all cases.
 '''
 def read(filename):
     # read the CSV file
@@ -24,4 +24,4 @@ def read(filename):
         else:
             cases[case] = [event]
     
-    return cases
+    return list(cases.values())

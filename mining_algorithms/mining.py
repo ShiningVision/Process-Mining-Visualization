@@ -1,12 +1,13 @@
 from .csv_reader import read
-from .heuristic_alg import heuristic_mining
+from .heuristic_mining import HeuristicMining
 #get csv input
 def mining(csv):
     #group events by cases
-    dic = read(csv)
-    #run in heuristic alg
-    graph_input = heuristic_mining(dic)
-    #generate dot file
-
+    cases = read(csv)
+    #run in heuristic algorithm
+    heuristic = HeuristicMining(cases)
+    graph_input = heuristic.mine(0.5,1)
+    #TODO:
+    #generate dot file?
     #return c-net
     return graph_input
