@@ -1,19 +1,33 @@
 from .causal_net import CausalNet
+import networkx as nx
 import numpy as np
 
 class HeuristicMining():
     def __init__(self, log):
-        self.log = set(log)
+        self.log = log
         self.events = self.__filter_out_all_events()
         self.succession_matrix = self.__create_succession_matrix()
         self.dependency_matrix = self.__create_dependency_matrix()
 
     def mine(self, dependency_treshhold, min_frequency):
         dependency_graph = self.__create_dependency_graph(dependency_treshhold,min_frequency)
+        DG = self.__create_dependency_graph_with_networkx(dependency_graph)
         #TODO:
         #join and splits
         #return c-net
-        return dependency_graph
+        return DG
+    
+    def __create_dependency_graph_with_networkx(self, dependency_graph):
+        G = nx.DiGraph()
+        G.add_nodes_from(self.events)
+        edgelist = []
+        for x in range(len(dependency_graph)):
+            for y in range(len(dependency_graph[0])):
+                if(dependency_graph[x][y]!=0):
+                    edgelist.append((self.events[x],self.events[y], {'weight':self.succession_matrix[x][y] }))
+        G.add_edges_from(edgelist)
+        return G
+        
 
     def __filter_out_all_events(self):
         dic = {}
@@ -60,7 +74,7 @@ class HeuristicMining():
         dependency_graph = np.zeros(self.dependency_matrix.shape)
         y = 0
         for row in dependency_graph:
-            for x in len(row):
+            for x in range(len(row)):
                 if self.dependency_matrix[y][x] >= dependency_treshhold and self.succession_matrix[y][x] >= min_frequency:
                     dependency_graph[y][x]+= 1          
             y+=1

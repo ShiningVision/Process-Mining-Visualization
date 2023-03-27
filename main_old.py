@@ -39,15 +39,20 @@ class MainWindow(QMainWindow):
         if not filename:
             return
 
-        # read csv
-        cases = read(filename)
-        H = HeuristicMining(cases)
-        nx_graph = H.mine(0.5,1)
-        self.figure.clear()
-        nx.draw_networkx(nx_graph, with_labels=True)
-        self.canvas.draw()
+        # Parse the CSV file and store it in memory
+        with open(filename, newline='') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',', quotechar='"')
+            data = []
+            for row in reader:
+                data.append(row)
 
-        
+        # Display the contents of the CSV file in the app
+        self.table.setRowCount(len(data))
+        self.table.setColumnCount(len(data[0]))
+        for i, row in enumerate(data):
+            for j, val in enumerate(row):
+                item = QTableWidgetItem(val)
+                self.table.setItem(i, j, item)
         
         print("CSV uploaded")
 
