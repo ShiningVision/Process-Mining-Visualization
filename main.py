@@ -7,7 +7,7 @@ import pydot
 import networkx as nx
 import matplotlib.pyplot as plt
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QMainWindow,QStackedWidget, QFileDialog,QTableWidget, QTableWidgetItem, QDockWidget,QSlider,QLabel,QWidget,QVBoxLayout
+from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QApplication, QMainWindow,QStackedWidget, QFileDialog,QTableWidget, QTableWidgetItem, QDockWidget,QSlider,QLabel,QWidget,QVBoxLayout
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from mining_algorithms.csv_reader import read
@@ -18,10 +18,14 @@ class MainWindow(QMainWindow):
         super().__init__()
     
         # Set up the user interface
-        self.figure = plt.figure(figsize=(50, 50))
         
+        self.figure = plt.figure(figsize=(50, 50))
         self.canvas = FigureCanvas(self.figure)
+
+        # Add a table widget for display of csv
         self.table = QTableWidget(self)
+
+        # Create a main widget that is stacked and can change depending on the needs
         self.mainWidget = QStackedWidget(self)
         self.mainWidget.addWidget(self.canvas)
         self.mainWidget.addWidget(self.table)
@@ -30,9 +34,9 @@ class MainWindow(QMainWindow):
 
         # Add a file menu to allow users to upload a CSV file
         file_menu = self.menuBar().addMenu("File")
-        upload_action_csv = file_menu.addAction("Upload CSV File")
-        upload_action_mine_csv = file_menu.addAction("Upload and Heuristic Mine CSV File")
-        upload_action_dot = file_menu.addAction("Upload DOT File")
+        upload_action_csv = file_menu.addAction("Display CSV")
+        upload_action_mine_csv = file_menu.addAction("Heuristic Mine CSV File")
+        upload_action_dot = file_menu.addAction("Display DOT File")
         upload_action_csv.triggered.connect(self.upload_csv)
         upload_action_dot.triggered.connect(self.upload_dot)
         upload_action_mine_csv.triggered.connect(self.upload_and_mine_csv)
@@ -81,16 +85,36 @@ class MainWindow(QMainWindow):
         self.Heuristic_Model = HeuristicMining(cases)
         self.dependency_treshhold = 0.5
         self.min_frequency = 1
-        self.mine_csv()
+        self.mine_and_draw_csv()
 
         self.__create_slider_dock_widget()
         self.addDockWidget(Qt.RightDockWidgetArea, self.slider_dock_widget)
 
-    def mine_csv(self):
+    def mine_and_draw_csv(self):
+        '''with networkx'''
+        #nx_graph = self.Heuristic_Model.create_dependency_graph_with_networkx(self.dependency_treshhold,self.min_frequency)
+        #self.figure.clear()
+        #nx.draw_networkx(nx_graph, with_labels=True)
+        #self.canvas.draw()
+
+        '''with graphviz'''
+        graphviz_graph = self.Heuristic_Model.create_dependency_graph_with_graphviz(self.dependency_treshhold,self.min_frequency)
         
-        nx_graph = self.Heuristic_Model.mine(self.dependency_treshhold,self.min_frequency)
+        filepath = 'temp/graph_viz'
+        filename = filepath + '.png'
+        graphviz_graph.render(filepath,format = 'png')
+
         self.figure.clear()
-        nx.draw_networkx(nx_graph, with_labels=True)
+        
+        graph = plt.imread(filename)
+        plt.imshow(graph)
+        # Set axis limits to size of image
+        plt.xlim([0, graph.shape[1]])
+        plt.ylim([graph.shape[0], 0])
+
+        # Turn off axis labels and tick marks
+        plt.axis('off')
+
         self.canvas.draw()
         
         print("CSV mined")
@@ -118,17 +142,17 @@ class MainWindow(QMainWindow):
 
     def __freq_slider_changed(self, value):
         # Update the label with the slider value
-        self.slider_label.setText(f"Min. Frequency: {value}")
+        self.freq_slider_label.setText(f"Min. Frequency: {value}")
         # Redraw graph when value changes
         self.min_frequency = value
-        self.mine_csv()
+        self.mine_and_draw_csv()
     
     def __thresh_slider_changed(self, value):
         # Update the label with the slider value
-        self.slider2_label.setText(f"Dependency Threshhold: {value/100:.2f}")
+        self.thresh_slider_label.setText(f"Dependency Threshhold: {value/100:.2f}")
         # Redraw graph when value changes
         self.dependency_treshhold = value/100
-        self.mine_csv()
+        self.mine_and_draw_csv()
 
     def __open_csv_file(self):
          # Open a file dialog to allow users to select a CSV file
@@ -144,30 +168,30 @@ class MainWindow(QMainWindow):
         self.slider_dock_widget = QDockWidget("Heuristic variables")
 
         # Create the slider and label widgets
-        self.slider = QSlider(Qt.Vertical)
-        self.slider.setRange(0, 100)
-        self.slider.setValue(1)
-        self.slider.valueChanged.connect(self.__freq_slider_changed)
+        self.freq_slider = QSlider(Qt.Vertical)
+        self.freq_slider.setRange(0, 100)
+        self.freq_slider.setValue(1)
+        self.freq_slider.valueChanged.connect(self.__freq_slider_changed)
 
-        self.slider_label = QLabel("Min Frequency: 1")
-        self.slider_label.setAlignment(Qt.AlignCenter)
+        self.freq_slider_label = QLabel("Min Frequency: 1")
+        self.freq_slider_label.setAlignment(Qt.AlignCenter)
 
         # Create the second slider and label widgets
-        self.slider2 = QSlider(Qt.Vertical)
-        self.slider2.setRange(0, 100)
-        self.slider2.setValue(50)
-        self.slider2.valueChanged.connect(self.__thresh_slider_changed)
+        self.thresh_slider = QSlider(Qt.Vertical)
+        self.thresh_slider.setRange(0, 100)
+        self.thresh_slider.setValue(50)
+        self.thresh_slider.valueChanged.connect(self.__thresh_slider_changed)
 
-        self.slider2_label = QLabel("Dependency Threshhold: 0.50")
-        self.slider2_label.setAlignment(Qt.AlignCenter)
+        self.thresh_slider_label = QLabel("Dependency Threshhold: 0.50")
+        self.thresh_slider_label.setAlignment(Qt.AlignCenter)
 
         # Create a new widget for the slider and canvas
         slider_widget = QWidget()
         slider_layout = QVBoxLayout()
-        slider_layout.addWidget(self.slider)
-        slider_layout.addWidget(self.slider_label)
-        slider_layout.addWidget(self.slider2)
-        slider_layout.addWidget(self.slider2_label)
+        slider_layout.addWidget(self.freq_slider)
+        slider_layout.addWidget(self.freq_slider_label)
+        slider_layout.addWidget(self.thresh_slider)
+        slider_layout.addWidget(self.thresh_slider_label)
         slider_widget.setLayout(slider_layout)
 
         # Adjust the size of the slider widget

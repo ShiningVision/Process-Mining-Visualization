@@ -1,0 +1,17 @@
+digraph {
+	a
+	b
+	e
+	f
+	c
+	d
+	a -> b [penwidth=2.4000000000000004]
+	a -> e [penwidth=1.5]
+	b -> f [penwidth=2.4000000000000004]
+	b -> c [penwidth=2.25]
+	e -> f [penwidth=1.5]
+	c -> d [penwidth=2.25]
+	d -> b [penwidth=2.25]
+	a [fillcolor=green shape=doublecircle style=filled]
+	f [fillcolor=red shape=doublecircle style=filled]
+}
