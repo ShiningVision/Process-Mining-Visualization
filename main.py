@@ -2,12 +2,13 @@
 
 import sys
 import csv
+import os
 import numpy as np
 import pydot
 import networkx as nx
 import matplotlib.pyplot as plt
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QApplication, QMainWindow,QStackedWidget, QFileDialog,QTableWidget, QTableWidgetItem, QDockWidget,QSlider,QLabel,QWidget,QVBoxLayout
+from PyQt5.QtCore import Qt, QDir, QFile
+from PyQt5.QtWidgets import QApplication, QMainWindow,QStackedWidget, QMessageBox, QFileDialog,QTableWidget, QTableWidgetItem, QDockWidget,QSlider,QLabel,QWidget,QVBoxLayout
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from mining_algorithms.csv_reader import read
@@ -16,7 +17,8 @@ from mining_algorithms.heuristic_mining import HeuristicMining
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-    
+        # global variables
+        self.filepath = None
         # Set up the user interface
         
         self.figure = plt.figure(figsize=(50, 50))
@@ -35,11 +37,13 @@ class MainWindow(QMainWindow):
         # Add a file menu to allow users to upload a CSV file
         file_menu = self.menuBar().addMenu("File")
         upload_action_csv = file_menu.addAction("Display CSV")
-        upload_action_mine_csv = file_menu.addAction("Heuristic Mine CSV File")
+        upload_action_mine_csv = file_menu.addAction("Heuristic Mine CSV")
         upload_action_dot = file_menu.addAction("Display DOT File")
+        export_current_image = file_menu.addAction("Export")
         upload_action_csv.triggered.connect(self.upload_csv)
         upload_action_dot.triggered.connect(self.upload_dot)
         upload_action_mine_csv.triggered.connect(self.upload_and_mine_csv)
+        export_current_image.triggered.connect(self.export_current_image)
 
         # Set the window title and show the window
         self.setWindowTitle("Graph Viewer")
@@ -52,6 +56,7 @@ class MainWindow(QMainWindow):
         # If the user cancels the file dialog, return
         if not filename:
             return
+        
         self.__reset_canvas()
         #reset the central widget to table     
         self.mainWidget.setCurrentWidget(self.table)
@@ -78,6 +83,8 @@ class MainWindow(QMainWindow):
 
         # Open a file dialog to allow users to select a CSV file
         filename = self.__open_csv_file()
+        if not filename:
+            return
         # change central widget
         self.mainWidget.setCurrentWidget(self.canvas)
         # read csv and draw a dependency graph
@@ -85,39 +92,35 @@ class MainWindow(QMainWindow):
         self.Heuristic_Model = HeuristicMining(cases)
         self.dependency_treshhold = 0.5
         self.min_frequency = 1
-        self.mine_and_draw_csv()
+        self.__mine_and_draw_csv()
 
         self.__create_slider_dock_widget()
         self.addDockWidget(Qt.RightDockWidgetArea, self.slider_dock_widget)
 
-    def mine_and_draw_csv(self):
-        '''with networkx'''
-        #nx_graph = self.Heuristic_Model.create_dependency_graph_with_networkx(self.dependency_treshhold,self.min_frequency)
-        #self.figure.clear()
-        #nx.draw_networkx(nx_graph, with_labels=True)
-        #self.canvas.draw()
+    def export_current_image(self):
+        # if there is no image, warn with a pop up and return.
+        if not self.filepath:
+            popup = QMessageBox(self)
+            popup.setText("Nothing to export. Please mine a model.")
 
-        '''with graphviz'''
-        graphviz_graph = self.Heuristic_Model.create_dependency_graph_with_graphviz(self.dependency_treshhold,self.min_frequency)
+            close_button = popup.addButton("Close", QMessageBox.AcceptRole)
+            close_button.clicked.connect(popup.close)
+
+            # Show the pop-up message
+            popup.exec_()
+
+            return
         
-        filepath = 'temp/graph_viz'
-        filename = filepath + '.png'
-        graphviz_graph.render(filepath,format = 'png')
+        # Open a file dialog to allow users to select a folder
+        source_folder = QDir.currentPath()+ '/temp'
+        destination_folder = QFileDialog.getExistingDirectory(self, "Select a folder", QDir.currentPath())
 
-        self.figure.clear()
-        
-        graph = plt.imread(filename)
-        plt.imshow(graph)
-        # Set axis limits to size of image
-        plt.xlim([0, graph.shape[1]])
-        plt.ylim([graph.shape[0], 0])
+        file_name = 'graph_viz.png'
+        # Copy the file from the source folder to the destination folder
+        source_file_path = os.path.join(source_folder, file_name)
+        destination_file_path = os.path.join(destination_folder, file_name)
+        QFile.copy(source_file_path, destination_file_path)
 
-        # Turn off axis labels and tick marks
-        plt.axis('off')
-
-        self.canvas.draw()
-        
-        print("CSV mined")
 
     def upload_dot(self):
         # Open a file dialog to allow users to select a DOT file
@@ -140,19 +143,48 @@ class MainWindow(QMainWindow):
 
         print("DOT uploaded")
 
+    def __mine_and_draw_csv(self):
+        '''with networkx'''
+        #nx_graph = self.Heuristic_Model.create_dependency_graph_with_networkx(self.dependency_treshhold,self.min_frequency)
+        #self.figure.clear()
+        #nx.draw_networkx(nx_graph, with_labels=True)
+        #self.canvas.draw()
+
+        '''with graphviz'''
+        graphviz_graph = self.Heuristic_Model.create_dependency_graph_with_graphviz(self.dependency_treshhold,self.min_frequency)
+        
+        self.filepath = 'temp/graph_viz'
+        filename = self.filepath + '.png'
+        graphviz_graph.render(self.filepath,format = 'png')
+
+        self.figure.clear()
+        
+        graph = plt.imread(filename)
+        plt.imshow(graph)
+        # Set axis limits to size of image
+        plt.xlim([0, graph.shape[1]])
+        plt.ylim([graph.shape[0], 0])
+
+        # Turn off axis labels and tick marks
+        plt.axis('off')
+
+        self.canvas.draw()
+        
+        print("CSV mined")
+
     def __freq_slider_changed(self, value):
         # Update the label with the slider value
         self.freq_slider_label.setText(f"Min. Frequency: {value}")
         # Redraw graph when value changes
         self.min_frequency = value
-        self.mine_and_draw_csv()
+        self.__mine_and_draw_csv()
     
     def __thresh_slider_changed(self, value):
         # Update the label with the slider value
         self.thresh_slider_label.setText(f"Dependency Threshhold: {value/100:.2f}")
         # Redraw graph when value changes
         self.dependency_treshhold = value/100
-        self.mine_and_draw_csv()
+        self.__mine_and_draw_csv()
 
     def __open_csv_file(self):
          # Open a file dialog to allow users to select a CSV file
