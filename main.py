@@ -24,6 +24,9 @@ class MainWindow(QMainWindow):
         # Set up the user interface
         
         self.figure = plt.figure(figsize=(50, 50))
+        welcomeText = "This is a process mining tool.\nIt can create nice looking graphs out of CSV files!\nMake sure your CSV file has the following columns: 'timestamp', 'case', 'event' "
+        plt.text(0.5, 0.5, welcomeText, fontsize=24, ha='center', va='center')
+        plt.axis('off')
         self.canvas = FigureCanvas(self.figure)
 
         # Add a table widget for display of csv
@@ -81,12 +84,13 @@ class MainWindow(QMainWindow):
         print("CSV uploaded")
 
     def upload_and_mine_csv(self):
-        self.__reset_canvas()
 
         # Open a file dialog to allow users to select a CSV file
         filename = self.__open_csv_file()
         if not filename:
             return
+        
+        self.__reset_canvas()
         # change central widget
         self.mainWidget.setCurrentWidget(self.canvas)
         # read csv and draw a dependency graph

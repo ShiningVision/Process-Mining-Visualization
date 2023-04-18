@@ -5,6 +5,12 @@ For reading in csv files. Returns a list of all cases.
 def read(filename):
     # read the CSV file
     df = pd.read_csv(filename)
+    
+    # check that the required columns exist
+    required_columns = ['timestamp', 'case', 'event']
+    if not all(col in df.columns for col in required_columns):
+        print("Warning: Required columns not found in DataFrame")
+        return []
 
     # sort by timestamp
     df = df.sort_values(by=['case', 'timestamp'])
