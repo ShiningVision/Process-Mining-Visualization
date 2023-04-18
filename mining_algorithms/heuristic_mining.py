@@ -5,7 +5,7 @@ import numpy as np
 class HeuristicMining():
     def __init__(self, log):
         self.log = log
-        self.events = self.__filter_out_all_events()
+        self.events, self.appearence_frequency = self.__filter_out_all_events()
         self.succession_matrix = self.__create_succession_matrix()
         self.dependency_matrix = self.__create_dependency_matrix()
         self.edge_thickness_amplifier = 1.5
@@ -30,7 +30,7 @@ class HeuristicMining():
 
         # add nodes to graph
         for node in self.events:
-            graph.node(node)
+            graph.node(node, label = node+"\n"+str(self.appearence_frequency.get(node)))
 
         graph.node
         # add edges to graph
@@ -38,7 +38,7 @@ class HeuristicMining():
             for j in range(len(self.events)):
                 if dependency_graph[i][j] == 1.:
                     edge_thickness = self.dependency_matrix[i][j]/dependency_treshhold * self.edge_thickness_amplifier
-                    graph.edge(self.events[i], self.events[j], penwidth = str(edge_thickness))
+                    graph.edge(self.events[i], self.events[j], penwidth = str(edge_thickness), label = str(int(self.succession_matrix[i][j])))
 
         #make start node look nice
         start_node = self.__get_start_node()
@@ -60,7 +60,7 @@ class HeuristicMining():
                     dic[activity] = 1
 
         activities = list(dic.keys())
-        return activities
+        return activities, dic
 
     def __create_succession_matrix(self):
         succession_matrix = np.zeros((len(self.events),len(self.events)))

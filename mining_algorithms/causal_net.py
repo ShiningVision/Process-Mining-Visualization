@@ -1,3 +1,4 @@
+#This file is not in use. Will be deprecated.
 
 class Activity:
     def __init__(self, name, input_bindings, output_bindings):

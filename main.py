@@ -19,6 +19,8 @@ class MainWindow(QMainWindow):
         super().__init__()
         # global variables
         self.filepath = None
+        self.dependency_treshhold = 0.5
+        self.min_frequency = 1
         # Set up the user interface
         
         self.figure = plt.figure(figsize=(50, 50))
@@ -90,8 +92,6 @@ class MainWindow(QMainWindow):
         # read csv and draw a dependency graph
         cases = read(filename)
         self.Heuristic_Model = HeuristicMining(cases)
-        self.dependency_treshhold = 0.5
-        self.min_frequency = 1
         self.__mine_and_draw_csv()
 
         self.__create_slider_dock_widget()
@@ -120,7 +120,6 @@ class MainWindow(QMainWindow):
         source_file_path = os.path.join(source_folder, file_name)
         destination_file_path = os.path.join(destination_folder, file_name)
         QFile.copy(source_file_path, destination_file_path)
-
 
     def upload_dot(self):
         # Open a file dialog to allow users to select a DOT file
@@ -239,7 +238,8 @@ class MainWindow(QMainWindow):
     def __reset_canvas(self):
         if hasattr(self, 'slider_dock_widget'):
             self.removeDockWidget(self.slider_dock_widget)
-        
+        self.dependency_treshhold = 0.5
+        self.min_frequency = 1
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

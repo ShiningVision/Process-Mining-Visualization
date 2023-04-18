@@ -1,9 +1,20 @@
 digraph {
-	a
-	e
-	b
-	c
-	d
+	a [label="a
+40"]
+	e [label="e
+40"]
+	b [label="b
+21"]
+	c [label="c
+21"]
+	d [label="d
+17"]
+	a -> b [label=11 penwidth=2.75]
+	a -> c [label=11 penwidth=2.75]
+	a -> d [label=13 penwidth=2.7857142857142856]
+	b -> e [label=11 penwidth=2.75]
+	c -> e [label=11 penwidth=2.75]
+	d -> e [label=13 penwidth=2.7857142857142856]
 	a [fillcolor=green shape=doublecircle style=filled]
 	e [fillcolor=red shape=doublecircle style=filled]
 }
