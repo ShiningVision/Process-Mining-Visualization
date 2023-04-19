@@ -7,24 +7,29 @@ import numpy as np
 import pydot
 import networkx as nx
 import matplotlib.pyplot as plt
-from PyQt5.QtCore import Qt, QDir, QFile
-from PyQt5.QtWidgets import QApplication, QMainWindow,QStackedWidget, QMessageBox, QFileDialog,QTableWidget, QTableWidgetItem, QDockWidget,QSlider,QLabel,QWidget,QVBoxLayout
+from PyQt5.QtCore import Qt, QDir, QFile, QRect
+from PyQt5.QtWidgets import QApplication, QMainWindow,QStackedWidget,QComboBox, QPushButton,QMessageBox, QFileDialog,QTableWidget, QTableWidgetItem, QDockWidget,QSlider,QLabel,QWidget,QVBoxLayout
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from mining_algorithms.csv_reader import read
+from custom_ui.column_selection_view import ColumnSelectionView
 from mining_algorithms.heuristic_mining import HeuristicMining
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+
         # global variables
         self.filepath = None
         self.dependency_treshhold = 0.5
         self.min_frequency = 1
-        # Set up the user interface
-        
+        self.eventLabel = "event"
+        self.caseLabel = "case"
+        self.timeLabel = "timestamp"
+
+        # Set up the welcome user interface
         self.figure = plt.figure(figsize=(50, 50))
-        welcomeText = "This is a process mining tool.\nIt can create nice looking graphs out of CSV files!\nMake sure your CSV file has the following columns: 'timestamp', 'case', 'event' "
+        welcomeText = "This is a process mining tool.\nIt can create nice looking graphs out of CSV files!"
         plt.text(0.5, 0.5, welcomeText, fontsize=24, ha='center', va='center')
         plt.axis('off')
         self.canvas = FigureCanvas(self.figure)
@@ -32,29 +37,33 @@ class MainWindow(QMainWindow):
         # Add a table widget for display of csv
         self.table = QTableWidget(self)
 
+        # Add a view widget for assigning the necessary column-labels of the csv
+        self.columnSelectionView = ColumnSelectionView(self)
+
         # Create a main widget that is stacked and can change depending on the needs
         self.mainWidget = QStackedWidget(self)
         self.mainWidget.addWidget(self.canvas)
         self.mainWidget.addWidget(self.table)
+        self.mainWidget.addWidget(self.columnSelectionView)
         self.mainWidget.setCurrentWidget(self.canvas)
         self.setCentralWidget(self.mainWidget)
 
-        # Add a file menu to allow users to upload a CSV file
+        # Add a file menu to allow users to upload csv files and so on.
         file_menu = self.menuBar().addMenu("File")
         upload_action_csv = file_menu.addAction("Display CSV")
         upload_action_mine_csv = file_menu.addAction("Heuristic Mine CSV")
         upload_action_dot = file_menu.addAction("Display DOT File")
         export_current_image = file_menu.addAction("Export")
-        upload_action_csv.triggered.connect(self.upload_csv)
-        upload_action_dot.triggered.connect(self.upload_dot)
-        upload_action_mine_csv.triggered.connect(self.upload_and_mine_csv)
+        upload_action_csv.triggered.connect(self.display_csv)
+        upload_action_dot.triggered.connect(self.display_dot)
+        upload_action_mine_csv.triggered.connect(self.mine_csv)
         export_current_image.triggered.connect(self.export_current_image)
 
         # Set the window title and show the window
         self.setWindowTitle("Graph Viewer")
         self.show()
     
-    def upload_csv(self):
+    def display_csv(self):
         # Open a file dialog to allow users to select a CSV file
         filename, _ = QFileDialog.getOpenFileName(self, "Open CSV File", "", "CSV files (*.csv)")
 
@@ -68,7 +77,15 @@ class MainWindow(QMainWindow):
 
         # Parse the CSV file and store it in memory
         with open(filename, newline='') as csvfile:
-            reader = csv.reader(csvfile, delimiter=',', quotechar='"')
+            # use csv.Sniffer() to try to detect the delimiter
+            dialect = csv.Sniffer().sniff(csvfile.read(1024))
+            
+            # reset the file pointer to the beginning of the file
+            csvfile.seek(0)
+            
+            # create a CSV reader using the detected dialect
+            reader = csv.reader(csvfile, dialect)
+
             data = []
             for row in reader:
                 data.append(row)
@@ -83,23 +100,15 @@ class MainWindow(QMainWindow):
 
         print("CSV uploaded")
 
-    def upload_and_mine_csv(self):
+    def mine_csv(self):
 
         # Open a file dialog to allow users to select a CSV file
         filename = self.__open_csv_file()
         if not filename:
             return
         
-        self.__reset_canvas()
-        # change central widget
-        self.mainWidget.setCurrentWidget(self.canvas)
-        # read csv and draw a dependency graph
-        cases = read(filename)
-        self.Heuristic_Model = HeuristicMining(cases)
-        self.__mine_and_draw_csv()
-
-        self.__create_slider_dock_widget()
-        self.addDockWidget(Qt.RightDockWidgetArea, self.slider_dock_widget)
+        self.filepath = filename
+        self.__open_column_selector()
 
     def export_current_image(self):
         # if there is no image, warn with a pop up and return.
@@ -125,7 +134,7 @@ class MainWindow(QMainWindow):
         destination_file_path = os.path.join(destination_folder, file_name)
         QFile.copy(source_file_path, destination_file_path)
 
-    def upload_dot(self):
+    def display_dot(self):
         # Open a file dialog to allow users to select a DOT file
         filename, _ = QFileDialog.getOpenFileName(self, "Open DOT File", "", "DOT files (*.dot)")
 
@@ -145,13 +154,29 @@ class MainWindow(QMainWindow):
         self.canvas.draw()
 
         print("DOT uploaded")
+    
+    def __open_column_selector(self):
+
+        self.__reset_canvas()
+        # change central widget
+        self.columnSelectionView.load_csv(self.filepath)
+        self.mainWidget.setCurrentWidget(self.columnSelectionView)
+
+    def display_mining_result(self, timeLabel, caseLabel, eventLabel):
+        self.timeLabel = timeLabel
+        self.caseLabel = caseLabel
+        self.eventLabel = eventLabel
+        self.__reset_canvas()
+        self.mainWidget.setCurrentWidget(self.canvas)
+
+        cases = read(self.filepath, timeLabel, caseLabel, eventLabel)
+        self.Heuristic_Model = HeuristicMining(cases)
+        self.__mine_and_draw_csv()
+
+        self.__create_slider_dock_widget()
+        self.addDockWidget(Qt.RightDockWidgetArea, self.slider_dock_widget)
 
     def __mine_and_draw_csv(self):
-        '''with networkx'''
-        #nx_graph = self.Heuristic_Model.create_dependency_graph_with_networkx(self.dependency_treshhold,self.min_frequency)
-        #self.figure.clear()
-        #nx.draw_networkx(nx_graph, with_labels=True)
-        #self.canvas.draw()
 
         '''with graphviz'''
         graphviz_graph = self.Heuristic_Model.create_dependency_graph_with_graphviz(self.dependency_treshhold,self.min_frequency)
@@ -244,6 +269,7 @@ class MainWindow(QMainWindow):
             self.removeDockWidget(self.slider_dock_widget)
         self.dependency_treshhold = 0.5
         self.min_frequency = 1
+        self.columnSelectionView.clear()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

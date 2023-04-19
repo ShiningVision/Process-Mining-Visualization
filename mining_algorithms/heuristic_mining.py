@@ -30,15 +30,18 @@ class HeuristicMining():
 
         # add nodes to graph
         for node in self.events:
-            graph.node(node, label = node+"\n"+str(self.appearence_frequency.get(node)))
+            graph.node(str(node), label = str(node)+"\n"+str(self.appearence_frequency.get(node)))
 
         graph.node
         # add edges to graph
         for i in range(len(self.events)):
             for j in range(len(self.events)):
                 if dependency_graph[i][j] == 1.:
-                    edge_thickness = self.dependency_matrix[i][j]/dependency_treshhold * self.edge_thickness_amplifier
-                    graph.edge(self.events[i], self.events[j], penwidth = str(edge_thickness), label = str(int(self.succession_matrix[i][j])))
+                    if dependency_treshhold == 0:
+                        edge_thickness = 0.1
+                    else:
+                        edge_thickness = self.dependency_matrix[i][j]/dependency_treshhold * self.edge_thickness_amplifier
+                    graph.edge(str(self.events[i]), str(self.events[j]), penwidth = str(edge_thickness), label = str(int(self.succession_matrix[i][j])))
 
         #make start node look nice
         start_node = self.__get_start_node()
