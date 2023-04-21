@@ -1,0 +1,9 @@
+sys
+csv
+pydot
+networkx
+matplotlib.pyplot
+PyQt5.QtCore
+PyQt5.QtWidgets
+matplotlib.backends.backend_qt5agg
+matplotlib.figure

@@ -8,9 +8,9 @@ class ColumnSelectionView(QWidget):
         self.parent = parent
         
         #assign default labels
-        self.timeLabel = ""
-        self.caseLabel = ""
-        self.eventLabel = ""
+        self.timeLabel = "timestamp"
+        self.caseLabel = "case"
+        self.eventLabel = "event"
         self.selected_column = 0
 
         self.table = QTableWidget(self)
@@ -87,9 +87,9 @@ class ColumnSelectionView(QWidget):
         print(self.eventLabel + " assigned as event column")
 
     def clear(self):
-        self.timeLabel = ""
-        self.caseLabel = ""
-        self.eventLabel = ""
+        self.timeLabel = "timestamp"
+        self.caseLabel = "case"
+        self.eventLabel = "event"
         self.selected_column = 0
         self.column_selector.clear()
 

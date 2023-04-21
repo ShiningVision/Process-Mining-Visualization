@@ -3,29 +3,20 @@
 import sys
 import csv
 import os
-import numpy as np
 import pydot
 import networkx as nx
 import matplotlib.pyplot as plt
-from PyQt5.QtCore import Qt, QDir, QFile, QRect
-from PyQt5.QtWidgets import QApplication, QMainWindow,QStackedWidget,QComboBox, QPushButton,QMessageBox, QFileDialog,QTableWidget, QTableWidgetItem, QDockWidget,QSlider,QLabel,QWidget,QVBoxLayout
+from PyQt5.QtCore import Qt, QDir, QFile
+from PyQt5.QtWidgets import QApplication, QMainWindow,QStackedWidget,QMessageBox, QFileDialog,QTableWidget, QTableWidgetItem, QDockWidget,QSlider,QLabel,QWidget,QVBoxLayout
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-from mining_algorithms.csv_reader import read
 from custom_ui.column_selection_view import ColumnSelectionView
-from mining_algorithms.heuristic_mining import HeuristicMining
-
+from custom_ui.heuristic_graph_display_view import HeuristicGraphDisplayView
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        # global variables
+        # global variables with default values
         self.filepath = None
-        self.dependency_treshhold = 0.5
-        self.min_frequency = 1
-        self.eventLabel = "event"
-        self.caseLabel = "case"
-        self.timeLabel = "timestamp"
 
         # Set up the welcome user interface
         self.figure = plt.figure(figsize=(50, 50))
@@ -40,11 +31,15 @@ class MainWindow(QMainWindow):
         # Add a view widget for assigning the necessary column-labels of the csv
         self.columnSelectionView = ColumnSelectionView(self)
 
+        # Add a view widget for diplaying heuristic graphs
+        self.heuristicGraphDisplayView = HeuristicGraphDisplayView(self) 
+
         # Create a main widget that is stacked and can change depending on the needs
         self.mainWidget = QStackedWidget(self)
         self.mainWidget.addWidget(self.canvas)
         self.mainWidget.addWidget(self.table)
         self.mainWidget.addWidget(self.columnSelectionView)
+        self.mainWidget.addWidget(self.heuristicGraphDisplayView)
         self.mainWidget.setCurrentWidget(self.canvas)
         self.setCentralWidget(self.mainWidget)
 
@@ -100,6 +95,27 @@ class MainWindow(QMainWindow):
 
         print("CSV uploaded")
 
+    def display_dot(self):
+        # Open a file dialog to allow users to select a DOT file
+        filename, _ = QFileDialog.getOpenFileName(self, "Open DOT File", "", "DOT files (*.dot)")
+
+        # If the user cancels the file dialog, return
+        if not filename:
+            return
+        
+        self.__reset_canvas()
+
+        # change central widget
+        self.mainWidget.setCurrentWidget(self.canvas)
+
+        graph = pydot.graph_from_dot_file(filename)
+        nx_graph = nx.nx_pydot.from_pydot(graph[0])
+        self.figure.clear()
+        nx.draw_networkx(nx_graph, with_labels=True)
+        self.canvas.draw()
+
+        print("DOT uploaded")
+
     def mine_csv(self):
 
         # Open a file dialog to allow users to select a CSV file
@@ -134,27 +150,6 @@ class MainWindow(QMainWindow):
         destination_file_path = os.path.join(destination_folder, file_name)
         QFile.copy(source_file_path, destination_file_path)
 
-    def display_dot(self):
-        # Open a file dialog to allow users to select a DOT file
-        filename, _ = QFileDialog.getOpenFileName(self, "Open DOT File", "", "DOT files (*.dot)")
-
-        # If the user cancels the file dialog, return
-        if not filename:
-            return
-        
-        self.__reset_canvas()
-
-        # change central widget
-        self.mainWidget.setCurrentWidget(self.canvas)
-
-        graph = pydot.graph_from_dot_file(filename)
-        nx_graph = nx.nx_pydot.from_pydot(graph[0])
-        self.figure.clear()
-        nx.draw_networkx(nx_graph, with_labels=True)
-        self.canvas.draw()
-
-        print("DOT uploaded")
-    
     def __open_column_selector(self):
 
         self.__reset_canvas()
@@ -167,52 +162,12 @@ class MainWindow(QMainWindow):
         self.caseLabel = caseLabel
         self.eventLabel = eventLabel
         self.__reset_canvas()
-        self.mainWidget.setCurrentWidget(self.canvas)
-
-        cases = read(self.filepath, timeLabel, caseLabel, eventLabel)
-        self.Heuristic_Model = HeuristicMining(cases)
-        self.__mine_and_draw_csv()
-
-        self.__create_slider_dock_widget()
-        self.addDockWidget(Qt.RightDockWidgetArea, self.slider_dock_widget)
-
-    def __mine_and_draw_csv(self):
-
-        '''with graphviz'''
-        graphviz_graph = self.Heuristic_Model.create_dependency_graph_with_graphviz(self.dependency_treshhold,self.min_frequency)
-        
-        self.filepath = 'temp/graph_viz'
-        filename = self.filepath + '.png'
-        graphviz_graph.render(self.filepath,format = 'png')
-
-        self.figure.clear()
-        
-        graph = plt.imread(filename)
-        plt.imshow(graph)
-        # Set axis limits to size of image
-        plt.xlim([0, graph.shape[1]])
-        plt.ylim([graph.shape[0], 0])
-
-        # Turn off axis labels and tick marks
-        plt.axis('off')
-
-        self.canvas.draw()
-        
-        print("CSV mined")
-
-    def __freq_slider_changed(self, value):
-        # Update the label with the slider value
-        self.freq_slider_label.setText(f"Min. Frequency: {value}")
-        # Redraw graph when value changes
-        self.min_frequency = value
-        self.__mine_and_draw_csv()
+        #self.mainWidget.setCurrentWidget(self.canvas)
+        self.heuristicGraphDisplayView.mine(self.filepath,self.timeLabel,self.caseLabel, self.eventLabel)
+        self.mainWidget.setCurrentWidget(self.heuristicGraphDisplayView)
     
-    def __thresh_slider_changed(self, value):
-        # Update the label with the slider value
-        self.thresh_slider_label.setText(f"Dependency Threshhold: {value/100:.2f}")
-        # Redraw graph when value changes
-        self.dependency_treshhold = value/100
-        self.__mine_and_draw_csv()
+    def add_dock_widget(self, widget):
+        self.addDockWidget(Qt.RightDockWidgetArea,widget)
 
     def __open_csv_file(self):
          # Open a file dialog to allow users to select a CSV file
@@ -222,53 +177,11 @@ class MainWindow(QMainWindow):
         if not filename:
             return
         return filename
-    
-    def __create_slider_dock_widget(self):
-        # Add the dock widget for the slider and canvas
-        self.slider_dock_widget = QDockWidget("Heuristic variables")
-
-        # Create the slider and label widgets
-        self.freq_slider = QSlider(Qt.Vertical)
-        self.freq_slider.setRange(0, 100)
-        self.freq_slider.setValue(1)
-        self.freq_slider.valueChanged.connect(self.__freq_slider_changed)
-
-        self.freq_slider_label = QLabel("Min Frequency: 1")
-        self.freq_slider_label.setAlignment(Qt.AlignCenter)
-
-        # Create the second slider and label widgets
-        self.thresh_slider = QSlider(Qt.Vertical)
-        self.thresh_slider.setRange(0, 100)
-        self.thresh_slider.setValue(50)
-        self.thresh_slider.valueChanged.connect(self.__thresh_slider_changed)
-
-        self.thresh_slider_label = QLabel("Dependency Threshhold: 0.50")
-        self.thresh_slider_label.setAlignment(Qt.AlignCenter)
-
-        # Create a new widget for the slider and canvas
-        slider_widget = QWidget()
-        slider_layout = QVBoxLayout()
-        slider_layout.addWidget(self.freq_slider)
-        slider_layout.addWidget(self.freq_slider_label)
-        slider_layout.addWidget(self.thresh_slider)
-        slider_layout.addWidget(self.thresh_slider_label)
-        slider_widget.setLayout(slider_layout)
-
-        # Adjust the size of the slider widget
-        slider_widget.setMinimumWidth(100)
-
-        # Add the slider and canvas widget to the dock widget
-        self.slider_dock_widget.setWidget(slider_widget)
-
-        # Create a new canvas for the right dock widget
-        self.right_canvas = FigureCanvas(Figure(figsize=(5, 5)))
-        self.slider_dock_widget.setAllowedAreas(Qt.RightDockWidgetArea)
-
+  
     def __reset_canvas(self):
-        if hasattr(self, 'slider_dock_widget'):
-            self.removeDockWidget(self.slider_dock_widget)
-        self.dependency_treshhold = 0.5
-        self.min_frequency = 1
+        #if hasattr(self, 'slider_dock_widget'):
+            #self.removeDockWidget(self.slider_dock_widget)
+        self.heuristicGraphDisplayView.clear()
         self.columnSelectionView.clear()
 
 if __name__ == "__main__":
