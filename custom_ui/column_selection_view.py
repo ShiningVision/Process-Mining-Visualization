@@ -1,5 +1,5 @@
-from PyQt5.QtCore import QRect
-from PyQt5.QtWidgets import QWidget, QComboBox, QPushButton, QTableWidget, QMessageBox, QTableWidgetItem, QWidget, QVBoxLayout
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget, QComboBox, QHBoxLayout, QPushButton, QTableWidget, QMessageBox, QTableWidgetItem, QWidget, QVBoxLayout
 import csv
 
 class ColumnSelectionView(QWidget):
@@ -7,50 +7,75 @@ class ColumnSelectionView(QWidget):
         super().__init__()
         self.parent = parent
         
-        #assign default labels
+        # assign default labels
         self.timeLabel = "timestamp"
         self.caseLabel = "case"
         self.eventLabel = "event"
         self.selected_column = 0
         self.selected_algorithm = 0
 
+        # set up table widget
         self.table = QTableWidget(self)
-        self.table.setGeometry(QRect(10, 10, 580, 280))
         self.table.setColumnCount(0)
         self.table.setRowCount(0)
         self.table.horizontalHeader().sectionClicked.connect(self.__column_header_clicked)
 
+        # set up column selector combo box
         self.column_selector = QComboBox(self)
-        self.column_selector.setGeometry(QRect(10, 300, 200, 30))
+        self.column_selector.setFixedSize(120, 20)
         self.column_selector.currentIndexChanged.connect(self.__column_selected)
         
+        # set up algorithm selector combo box
         self.algorithm_selector = QComboBox(self)
-        self.algorithm_selector.setGeometry(QRect(10, 300, 200, 30))
+        self.algorithm_selector.setFixedSize(120, 20)
         self.algorithm_selector.currentIndexChanged.connect(self.__algorithm_selected)
 
-        self.timeColumn_button = QPushButton('Assign to Timestamp', self)
-        self.timeColumn_button.setGeometry(QRect(220, 300, 150, 30))
+        # set up assign column buttons
+        self.timeColumn_button = QPushButton('Assign to \nTimestamp', self)
+        self.timeColumn_button.setFixedSize(100, 70)
+        self.timeColumn_button.setStyleSheet("background-color: #ADD8E6;")
         self.timeColumn_button.clicked.connect(self.__assign_timeColumn)
 
-        self.caseColumn_button = QPushButton('Assign to Case', self)
-        self.caseColumn_button.setGeometry(QRect(380, 300, 150, 30))
+        self.caseColumn_button = QPushButton('Assign to \nCase', self)
+        self.caseColumn_button.setFixedSize(100, 70)
+        self.caseColumn_button.setStyleSheet("background-color: #ADD8E6;")
         self.caseColumn_button.clicked.connect(self.__assign_caseColumn)
 
-        self.eventColumn_button = QPushButton('Assign to Event', self)
-        self.eventColumn_button.setGeometry(QRect(540, 300, 150, 30))
+        self.eventColumn_button = QPushButton('Assign to \nEvent', self)
+        self.eventColumn_button.setFixedSize(100, 70)
+        self.eventColumn_button.setStyleSheet("background-color: #ADD8E6;")
         self.eventColumn_button.clicked.connect(self.__assign_eventColumn)
 
+        # set up start import button
         self.start_import_button = QPushButton('Start Import', self)
-        self.start_import_button.setGeometry(QRect(10, 340, 580, 30))
+        self.start_import_button.setFixedSize(80, 60)
+        self.start_import_button.setStyleSheet("background-color: red;")
         self.start_import_button.clicked.connect(self.__start_import)
 
+        # set up top layout
+        top_layout = QHBoxLayout()
+        top_layout.addWidget(self.column_selector)
+        top_layout.addWidget(self.timeColumn_button)
+        top_layout.addWidget(self.caseColumn_button)
+        top_layout.addWidget(self.eventColumn_button)
+        top_layout.setAlignment(Qt.AlignLeft)
+        top_layout.setSpacing(10)
+
+        # set up selector and import button layout
+        buttom_layout = QHBoxLayout()
+        buttom_layout.addWidget(self.algorithm_selector)
+        buttom_layout.addWidget(self.start_import_button)
+        top_layout.setSpacing(10)
+
+        # set up layout
         layout = QVBoxLayout(self)
+        layout.addLayout(top_layout)
         layout.addWidget(self.table)
-        layout.addWidget(self.column_selector)
-        layout.addWidget(self.caseColumn_button)
-        layout.addWidget(self.eventColumn_button)
-        layout.addWidget(self.timeColumn_button)
-        layout.addWidget(self.start_import_button)
+        layout.addLayout(buttom_layout)
+
+        # set up spacing and margins
+        layout.setSpacing(0)
+        layout.setContentsMargins(10, 10, 10, 10)
 
     def load_csv(self, filepath):
         with open(filepath, 'r') as file:

@@ -14,6 +14,7 @@ class HeuristicGraphDisplayView(QWidget):
         self.canvas = FigureCanvas(self.figure)
         self.dependency_treshhold = 0.5
         self.min_frequency = 1
+        self.max_frequency = 100
         
         # Create the slider frame
         slider_frame = QFrame()
@@ -25,17 +26,17 @@ class HeuristicGraphDisplayView(QWidget):
         slider_layout = QHBoxLayout()
 
         self.freq_slider = QSlider(Qt.Vertical)
-        self.freq_slider.setRange(0, 100)
-        self.freq_slider.setValue(1)
+        self.freq_slider.setRange(self.min_frequency, self.max_frequency)
+        self.freq_slider.setValue(self.min_frequency)
         self.freq_slider.valueChanged.connect(self.__freq_slider_changed)
-        self.freq_slider_label = QLabel("Min Frequency: 1")
+        self.freq_slider_label = QLabel(f"Min Frequency: {self.min_frequency}")
         self.freq_slider_label.setAlignment(Qt.AlignCenter)
 
         self.thresh_slider = QSlider(Qt.Vertical)
         self.thresh_slider.setRange(0, 100)
         self.thresh_slider.setValue(50)
         self.thresh_slider.valueChanged.connect(self.__thresh_slider_changed)
-        self.thresh_slider_label = QLabel("Dependency Threshhold: 0.50")
+        self.thresh_slider_label = QLabel(f"Dependency Threshhold: {self.dependency_treshhold}")
         self.thresh_slider_label.setAlignment(Qt.AlignCenter)
 
         slider1_layout = QVBoxLayout()
@@ -56,7 +57,7 @@ class HeuristicGraphDisplayView(QWidget):
 
         # Add the slider layout to the slider frame layout
         slider_frame_layout = QVBoxLayout()
-        slider_frame_layout.addWidget(QLabel("Heuristic Mining Variables", alignment=Qt.AlignCenter))
+        slider_frame_layout.addWidget(QLabel("Heuristic Mining Modifiers", alignment=Qt.AlignCenter))
         slider_frame_layout.addLayout(slider_layout)
         slider_frame.setLayout(slider_frame_layout)
 
@@ -65,6 +66,8 @@ class HeuristicGraphDisplayView(QWidget):
     def mine(self, filepath, timeLabel, caseLabel, eventLabel):
         cases = read(filepath, timeLabel, caseLabel, eventLabel)
         self.Heuristic_Model = HeuristicMining(cases)
+        self.max_frequency = self.Heuristic_Model.get_max_frequency()
+        self.freq_slider.setRange(self.min_frequency,self.max_frequency)
         self.__mine_and_draw_csv()
 
     def __freq_slider_changed(self, value):

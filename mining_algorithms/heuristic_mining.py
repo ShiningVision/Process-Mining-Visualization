@@ -46,16 +46,22 @@ class HeuristicMining():
                             edge_thickness = self.max_edge_thickness
                     graph.edge(str(self.events[i]), str(self.events[j]), penwidth = str(edge_thickness), label = str(int(self.succession_matrix[i][j])))
 
-        #make start node look nice
-        start_node = self.__get_start_node()
-        graph.node(start_node, shape='doublecircle', style='filled',fillcolor='green')
+        #start node
+        graph.node("start", shape='doublecircle', style='filled',fillcolor='green')
+        for node in self.__get_start_nodes():
+            graph.edge("start", str(node), penwidth = str(0.1) )
 
-        #make end node look nice
-        end_node = self.__get_end_node()
-        graph.node(end_node, shape='doublecircle', style='filled',fillcolor='red')
-            
+        #end node
+        graph.node("end", shape='doublecircle', style='filled',fillcolor='red')
+        for node in self.__get_end_nodes():
+            graph.edge(str(node), "end", penwidth =str( 0.1) )  
+
         return graph
-
+    
+    def get_max_frequency(self):
+        max_freq = 0
+        return max_freq
+    
     def __filter_out_all_events(self):
         dic = {}
         for trace in self.log:
@@ -83,30 +89,32 @@ class HeuristicMining():
                 index_x +=1
         return succession_matrix
     
-    def __get_start_node(self):
-        #start node is the node where an entire column in the succession_matrix is 0.
+    def __get_start_nodes(self):
+        #a start node is a node where an entire column in the succession_matrix is 0.
+        start_nodes = []
         for column in range(len(self.succession_matrix)):
             incoming_edges = 0
             for row in range(len(self.succession_matrix)):
                 if self.succession_matrix[row][column] != 0:
                     incoming_edges +=1
             if incoming_edges == 0:
-                return self.events[column]
-        #if there are no start nodes (which should not happen), add one to signify the problem.
-        return 'start'
+                start_nodes.append(self.events[column])
+        
+        return start_nodes
         
     
-    def __get_end_node(self):
-        #end node is the node where an entire row in the succession_matrix is 0.
+    def __get_end_nodes(self):
+        #an end node is a node where an entire row in the succession_matrix is 0.
+        end_nodes = []
         for row in range(len(self.succession_matrix)):
             outgoing_edges = 0
             for column in range(len(self.succession_matrix)):
                 if self.succession_matrix[row][column] != 0:
                     outgoing_edges +=1
             if outgoing_edges == 0:
-                return self.events[row]
-        #if there are no end nodes (which should also not happen), add one to signify the problem.
-        return 'end'
+                end_nodes.append(self.events[row])
+        
+        return end_nodes
 
     def __create_dependency_matrix(self):
         dependency_matrix = np.zeros(self.succession_matrix.shape)

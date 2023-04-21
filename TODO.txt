@@ -1,5 +1,5 @@
 Errorhandling Required columns not found in DataFrame
-Startnode/Endnode not singular
-Line Thickness ticker.
-Replace Dock widgets
-Make ColumnSelectionView more appealing
+Startnode/Endnode not singular --- DONE
+Line Thickness Cap.  --- DONE
+Replace Dock widgets --- DONE
+Make ColumnSelectionView more appealing ---DONE

@@ -8,15 +8,7 @@ This project is in developement. Unfinished and likely contains bugs.
 Python version 3.10.7 ----- Older versions likely to work as well, but not tested.
 Download Python from www.python.org
 
-networkx ----- this dependency might be removed later as I use graphviz instead.
-graphviz
-pandas
-If you have not installed these python-libraries, you can download networkx and graphviz simply with 
-```
-pip install graphviz
-pip install networkx
-pip install pandas
-```
+Required Python libraries are in requirements.txt
 
 
 # Usage Interface
