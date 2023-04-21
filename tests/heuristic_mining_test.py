@@ -7,7 +7,7 @@ import unittest
 from mining_algorithms.heuristic_mining import HeuristicMining
 import networkx as nx
 import matplotlib.pyplot as plt
-from mining_algorithms.csv_reader import read
+from mining_algorithms.csv_preprocessor import read
 
 class TestHeuristic(unittest.TestCase):
 

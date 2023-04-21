@@ -2,3 +2,4 @@ Errorhandling Required columns not found in DataFrame
 Startnode/Endnode not singular
 Line Thickness ticker.
 Replace Dock widgets
+Make ColumnSelectionView more appealing

@@ -1,7 +1,10 @@
 sys
 csv
+numpy
+pandas
 pydot
 networkx
+graphviz
 matplotlib.pyplot
 PyQt5.QtCore
 PyQt5.QtWidgets

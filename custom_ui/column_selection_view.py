@@ -12,16 +12,21 @@ class ColumnSelectionView(QWidget):
         self.caseLabel = "case"
         self.eventLabel = "event"
         self.selected_column = 0
+        self.selected_algorithm = 0
 
         self.table = QTableWidget(self)
         self.table.setGeometry(QRect(10, 10, 580, 280))
         self.table.setColumnCount(0)
         self.table.setRowCount(0)
-        self.table.horizontalHeader().sectionClicked.connect(self.column_header_clicked)
+        self.table.horizontalHeader().sectionClicked.connect(self.__column_header_clicked)
 
         self.column_selector = QComboBox(self)
         self.column_selector.setGeometry(QRect(10, 300, 200, 30))
         self.column_selector.currentIndexChanged.connect(self.__column_selected)
+        
+        self.algorithm_selector = QComboBox(self)
+        self.algorithm_selector.setGeometry(QRect(10, 300, 200, 30))
+        self.algorithm_selector.currentIndexChanged.connect(self.__algorithm_selected)
 
         self.timeColumn_button = QPushButton('Assign to Timestamp', self)
         self.timeColumn_button.setGeometry(QRect(220, 300, 150, 30))
@@ -67,7 +72,15 @@ class ColumnSelectionView(QWidget):
                 for col_index, col_data in enumerate(row_data):
                     self.table.setItem(row_index, col_index, QTableWidgetItem(col_data))
 
-    def column_header_clicked(self, index):
+    def load_algorithms(self, array):
+        for element in array:
+            self.algorithm_selector.addItem(element)
+
+    def __algorithm_selected(self, index):
+        self.algorithm_selector.setCurrentIndex(index)
+        self.selected_algorithm = index
+
+    def __column_header_clicked(self, index):
         self.column_selector.setCurrentIndex(index)
         self.selected_column = index
     
@@ -104,5 +117,5 @@ class ColumnSelectionView(QWidget):
         if ret == QMessageBox.Cancel:
             return
         
-        self.parent.display_mining_result(self.timeLabel, self.caseLabel, self.eventLabel)
+        self.parent.display_mining_result(self.timeLabel, self.caseLabel, self.eventLabel, self.selected_algorithm)
     

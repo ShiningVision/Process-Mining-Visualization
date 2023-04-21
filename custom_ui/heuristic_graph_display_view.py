@@ -4,7 +4,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 from mining_algorithms.heuristic_mining import HeuristicMining
-from mining_algorithms.csv_reader import read
+from mining_algorithms.csv_preprocessor import read
 
 class HeuristicGraphDisplayView(QWidget):
     def __init__(self, parent):
