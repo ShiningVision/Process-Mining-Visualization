@@ -8,7 +8,8 @@ class HeuristicMining():
         self.events, self.appearence_frequency = self.__filter_out_all_events()
         self.succession_matrix = self.__create_succession_matrix()
         self.dependency_matrix = self.__create_dependency_matrix()
-        self.edge_thickness_amplifier = 1.5
+        self.edge_thickness_amplifier = 1
+        self.max_edge_thickness = 5
 
     def create_dependency_graph_with_networkx(self, dependency_treshhold, min_frequency):
         dependency_graph = self.__create_dependency_graph(dependency_treshhold, min_frequency)
@@ -41,6 +42,8 @@ class HeuristicMining():
                         edge_thickness = 0.1
                     else:
                         edge_thickness = self.dependency_matrix[i][j]/dependency_treshhold * self.edge_thickness_amplifier
+                        if(edge_thickness>self.max_edge_thickness):
+                            edge_thickness = self.max_edge_thickness
                     graph.edge(str(self.events[i]), str(self.events[j]), penwidth = str(edge_thickness), label = str(int(self.succession_matrix[i][j])))
 
         #make start node look nice

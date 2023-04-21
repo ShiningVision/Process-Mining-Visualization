@@ -1,5 +1,5 @@
-from PyQt5.QtCore import Qt, QDir, QFile
-from PyQt5.QtWidgets import QApplication, QMainWindow,QStackedWidget,QMessageBox, QFileDialog,QTableWidget, QTableWidgetItem, QDockWidget,QSlider,QLabel,QWidget,QVBoxLayout
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QSlider,QLabel,QWidget,QVBoxLayout, QHBoxLayout, QFrame
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
@@ -15,16 +15,57 @@ class HeuristicGraphDisplayView(QWidget):
         self.dependency_treshhold = 0.5
         self.min_frequency = 1
         
-        layout = QVBoxLayout(self)
-        layout.addWidget(self.canvas)
+        # Create the slider frame
+        slider_frame = QFrame()
+        slider_frame.setFrameShape(QFrame.StyledPanel)
+        slider_frame.setFrameShadow(QFrame.Sunken)
+        slider_frame.setMinimumWidth(200)
+
+        # Create the sliders
+        slider_layout = QHBoxLayout()
+
+        self.freq_slider = QSlider(Qt.Vertical)
+        self.freq_slider.setRange(0, 100)
+        self.freq_slider.setValue(1)
+        self.freq_slider.valueChanged.connect(self.__freq_slider_changed)
+        self.freq_slider_label = QLabel("Min Frequency: 1")
+        self.freq_slider_label.setAlignment(Qt.AlignCenter)
+
+        self.thresh_slider = QSlider(Qt.Vertical)
+        self.thresh_slider.setRange(0, 100)
+        self.thresh_slider.setValue(50)
+        self.thresh_slider.valueChanged.connect(self.__thresh_slider_changed)
+        self.thresh_slider_label = QLabel("Dependency Threshhold: 0.50")
+        self.thresh_slider_label.setAlignment(Qt.AlignCenter)
+
+        slider1_layout = QVBoxLayout()
+        slider1_layout.addWidget(self.freq_slider)
+        slider1_layout.addWidget(self.freq_slider_label)
+
+        slider2_layout = QVBoxLayout()
+        slider2_layout.addWidget(self.thresh_slider)
+        slider2_layout.addWidget(self.thresh_slider_label)
+
+        slider_layout.addLayout(slider1_layout)
+        slider_layout.addLayout(slider2_layout)
+
+        # Create the main layout
+        main_layout = QHBoxLayout(self)
+        main_layout.addWidget(self.canvas, stretch=3)
+        main_layout.addWidget(slider_frame, stretch=1)
+
+        # Add the slider layout to the slider frame layout
+        slider_frame_layout = QVBoxLayout()
+        slider_frame_layout.addWidget(QLabel("Heuristic Mining Variables", alignment=Qt.AlignCenter))
+        slider_frame_layout.addLayout(slider_layout)
+        slider_frame.setLayout(slider_frame_layout)
+
+        self.setLayout(main_layout)
 
     def mine(self, filepath, timeLabel, caseLabel, eventLabel):
         cases = read(filepath, timeLabel, caseLabel, eventLabel)
         self.Heuristic_Model = HeuristicMining(cases)
         self.__mine_and_draw_csv()
-
-        self.__create_slider_dock_widget()
-        self.parent.add_dock_widget( self.slider_dock_widget)
 
     def __freq_slider_changed(self, value):
         # Update the label with the slider value
@@ -39,47 +80,6 @@ class HeuristicGraphDisplayView(QWidget):
         # Redraw graph when value changes
         self.dependency_treshhold = value/100
         self.__mine_and_draw_csv()
-
-    def __create_slider_dock_widget(self):
-        # Add the dock widget for the slider and canvas
-        self.slider_dock_widget = QDockWidget("Heuristic variables")
-
-        # Create the slider and label widgets
-        self.freq_slider = QSlider(Qt.Vertical)
-        self.freq_slider.setRange(0, 100)
-        self.freq_slider.setValue(1)
-        self.freq_slider.valueChanged.connect(self.__freq_slider_changed)
-
-        self.freq_slider_label = QLabel("Min Frequency: 1")
-        self.freq_slider_label.setAlignment(Qt.AlignCenter)
-
-        # Create the second slider and label widgets
-        self.thresh_slider = QSlider(Qt.Vertical)
-        self.thresh_slider.setRange(0, 100)
-        self.thresh_slider.setValue(50)
-        self.thresh_slider.valueChanged.connect(self.__thresh_slider_changed)
-
-        self.thresh_slider_label = QLabel("Dependency Threshhold: 0.50")
-        self.thresh_slider_label.setAlignment(Qt.AlignCenter)
-
-        # Create a new widget for the slider and canvas
-        slider_widget = QWidget()
-        slider_layout = QVBoxLayout()
-        slider_layout.addWidget(self.freq_slider)
-        slider_layout.addWidget(self.freq_slider_label)
-        slider_layout.addWidget(self.thresh_slider)
-        slider_layout.addWidget(self.thresh_slider_label)
-        slider_widget.setLayout(slider_layout)
-
-        # Adjust the size of the slider widget
-        slider_widget.setMinimumWidth(100)
-
-        # Add the slider and canvas widget to the dock widget
-        self.slider_dock_widget.setWidget(slider_widget)
-
-        # Create a new canvas for the right dock widget
-        self.right_canvas = FigureCanvas(Figure(figsize=(5, 5)))
-        self.slider_dock_widget.setAllowedAreas(Qt.RightDockWidgetArea)
     
     def __mine_and_draw_csv(self):
 

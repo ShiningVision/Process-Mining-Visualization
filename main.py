@@ -6,8 +6,8 @@ import os
 import pydot
 import networkx as nx
 import matplotlib.pyplot as plt
-from PyQt5.QtCore import Qt, QDir, QFile
-from PyQt5.QtWidgets import QApplication, QMainWindow, QStackedWidget, QMessageBox, QFileDialog, QTableWidget, QTableWidgetItem, QDockWidget, QSlider, QLabel, QWidget, QVBoxLayout
+from PyQt5.QtCore import QDir, QFile
+from PyQt5.QtWidgets import QApplication, QMainWindow, QStackedWidget, QMessageBox, QFileDialog, QTableWidget, QTableWidgetItem
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from custom_ui.column_selection_view import ColumnSelectionView
 from custom_ui.heuristic_graph_display_view import HeuristicGraphDisplayView
@@ -176,10 +176,6 @@ class MainWindow(QMainWindow):
             self.mainWidget.setCurrentWidget(self.heuristicGraphDisplayView)
         else:
             print("ERROR Algorithm with index "+str(algorithm)+" not defined!")
-
-    #TODO replace this with proper widgets
-    def add_dock_widget(self, widget):
-        self.addDockWidget(Qt.RightDockWidgetArea, widget)
 
     def __open_csv_file(self):
         # Open a file dialog to allow users to select a CSV file
