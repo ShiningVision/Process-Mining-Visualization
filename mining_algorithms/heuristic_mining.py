@@ -8,10 +8,10 @@ class HeuristicMining():
         self.events, self.appearence_frequency = self.__filter_out_all_events()
         self.succession_matrix = self.__create_succession_matrix()
         self.dependency_matrix = self.__create_dependency_matrix()
+
+        #graph modifiers
         self.edge_thickness_amplifier = 1
         self.max_edge_thickness = 5
-        self.min_vertice_size = 1
-        self.max_vertice_size = 10
 
     def create_dependency_graph_with_networkx(self, dependency_treshhold, min_frequency):
         dependency_graph = self.__create_dependency_graph(dependency_treshhold, min_frequency)
@@ -33,9 +33,11 @@ class HeuristicMining():
 
         # add nodes to graph
         for node in self.events:
-            graph.node(str(node), label = str(node)+"\n"+str(self.appearence_frequency.get(node)))
+            node_freq = self.appearence_frequency.get(node)
+            w = 1 + node_freq/self.get_max_frequency()
+            h = w/2
+            graph.node(str(node), label = str(node)+"\n"+str(node_freq),width = str(w), height = str(h))
 
-        graph.node
         # add edges to graph
         for i in range(len(self.events)):
             for j in range(len(self.events)):
@@ -100,13 +102,6 @@ class HeuristicMining():
         for case in self.log:
             if case[0] not in start_nodes:
                 start_nodes.append(case[0])
-        # for column in range(len(self.succession_matrix)):
-        #     incoming_edges = 0
-        #     for row in range(len(self.succession_matrix)):
-        #         if self.succession_matrix[row][column] != 0:
-        #             incoming_edges +=1
-        #     if incoming_edges == 0:
-        #         start_nodes.append(self.events[column])
         
         return start_nodes
         
@@ -118,13 +113,6 @@ class HeuristicMining():
             last_index = len(case)-1
             if case[last_index] not in end_nodes:
                 end_nodes.append(case[last_index])
-        # for row in range(len(self.succession_matrix)):
-        #     outgoing_edges = 0
-        #     for column in range(len(self.succession_matrix)):
-        #         if self.succession_matrix[row][column] != 0:
-        #             outgoing_edges +=1
-        #     if outgoing_edges == 0:
-        #         end_nodes.append(self.events[row])
         
         return end_nodes
 

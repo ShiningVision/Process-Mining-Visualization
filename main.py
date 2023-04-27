@@ -10,7 +10,7 @@ from PyQt5.QtCore import QDir, QFile
 from PyQt5.QtWidgets import QStyleFactory, QApplication, QMainWindow, QStackedWidget, QMessageBox, QFileDialog, QTableWidget, QTableWidgetItem
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from custom_ui.column_selection_view import ColumnSelectionView
-from custom_ui.heuristic_graph_display_view import HeuristicGraphDisplayView
+from custom_ui.heuristic_graph_view import HeuristicGraphView
 
 
 class MainWindow(QMainWindow):
@@ -19,10 +19,7 @@ class MainWindow(QMainWindow):
 
         # global variables with default values
         self.filepath = None
-
-        # ADD NEW ALGORITHMS IN THIS ARRAY HERE
-        # AND THEN ADD YOUR ALGORITHM IN THE SWITCH STATEMENT AT display_mining_result()
-        self.algorithms = ["Heuristic Mining"]
+        self.current_Algorithm = 0
 
         # Set up the welcome user interface
         self.figure = plt.figure(figsize=(50, 50))
@@ -31,98 +28,46 @@ class MainWindow(QMainWindow):
         plt.axis('off')
         self.canvas = FigureCanvas(self.figure)
 
-        # Add a table widget for display of csv
-        self.table = QTableWidget(self)
-
         # Add a view widget for assigning the necessary column-labels of the csv
         self.columnSelectionView = ColumnSelectionView(self)
 
         # Add a view widget for diplaying heuristic graphs
-        self.heuristicGraphDisplayView = HeuristicGraphDisplayView(self)
+        self.heuristicGraphView = HeuristicGraphView(self)
+
+        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ADD YOUR ALGORITHM HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        # ADD NEW ALGORITHM NAME IN THIS algorithms ARRAY
+        # Create your algorithm view page like the heuristicGraphView above.
+        # AND THEN append() YOUR ALGORITHMVIEW TO THE algorithmViews ARRAY
+        # MAKE SURE THE INDEXING of both arrays match.
+        self.algorithms = ["Heuristic Mining"]
+        self.algorithmViews = []
+        self.algorithmViews.append(self.heuristicGraphView)
 
         # Create a main widget that is stacked and can change depending on the needs
         self.mainWidget = QStackedWidget(self)
         self.mainWidget.addWidget(self.canvas)
-        self.mainWidget.addWidget(self.table)
         self.mainWidget.addWidget(self.columnSelectionView)
-        self.mainWidget.addWidget(self.heuristicGraphDisplayView)
+
+        # Add all the algorithm views
+        for view in self.algorithmViews:
+            self.mainWidget.addWidget(view)
+        
+        # The welcome page
         self.mainWidget.setCurrentWidget(self.canvas)
         self.setCentralWidget(self.mainWidget)
 
         # Add a file menu to allow users to upload csv files and so on.
         file_menu = self.menuBar().addMenu("File")
-        upload_action_csv = file_menu.addAction("Display CSV")
-        upload_action_mine_csv = file_menu.addAction("Heuristic Mine CSV")
-        upload_action_dot = file_menu.addAction("Display DOT File")
-        export_current_image = file_menu.addAction("Export")
-        upload_action_csv.triggered.connect(self.display_csv)
-        upload_action_dot.triggered.connect(self.display_dot)
+        upload_action_mine_csv = file_menu.addAction("Mine CSV")
+        export_current_image_png = file_menu.addAction("Export png")
+        export_current_image_svg = file_menu.addAction("Export svg")
         upload_action_mine_csv.triggered.connect(self.mine_csv)
-        export_current_image.triggered.connect(self.export_current_image)
+        export_current_image_png.triggered.connect(self.export_current_image_as_png)
+        export_current_image_svg.triggered.connect(self.export_current_image_as_svg)
 
         # Set the window title and show the window
         self.setWindowTitle("Graph Viewer")
         self.show()
-
-    def display_csv(self):
-        # Open a file dialog to allow users to select a CSV file
-        filename, _ = QFileDialog.getOpenFileName(
-            self, "Open CSV File", "", "CSV files (*.csv)")
-
-        # If the user cancels the file dialog, return
-        if not filename:
-            return
-
-        self.__reset_canvas()
-        # reset the central widget to table
-        self.mainWidget.setCurrentWidget(self.table)
-
-        # Parse the CSV file and store it in memory
-        with open(filename, newline='') as csvfile:
-            # use csv.Sniffer() to try to detect the delimiter
-            dialect = csv.Sniffer().sniff(csvfile.read(1024))
-
-            # reset the file pointer to the beginning of the file
-            csvfile.seek(0)
-
-            # create a CSV reader using the detected dialect
-            reader = csv.reader(csvfile, dialect)
-
-            data = []
-            for row in reader:
-                data.append(row)
-
-        # Display the contents of the CSV file in the app
-        self.table.setRowCount(len(data))
-        self.table.setColumnCount(len(data[0]))
-        for i, row in enumerate(data):
-            for j, val in enumerate(row):
-                item = QTableWidgetItem(val)
-                self.table.setItem(i, j, item)
-
-        print("CSV uploaded")
-
-    def display_dot(self):
-        # Open a file dialog to allow users to select a DOT file
-        filename, _ = QFileDialog.getOpenFileName(
-            self, "Open DOT File", "", "DOT files (*.dot)")
-
-        # If the user cancels the file dialog, return
-        if not filename:
-            return
-
-        self.__reset_canvas()
-
-        # change central widget
-        self.mainWidget.setCurrentWidget(self.canvas)
-
-        graph = pydot.graph_from_dot_file(filename)
-        nx_graph = nx.nx_pydot.from_pydot(graph[0])
-        self.figure.clear()
-        nx.draw_networkx(nx_graph, with_labels=True)
-        self.canvas.draw()
-
-        print("DOT uploaded")
 
     def mine_csv(self):
 
@@ -134,7 +79,7 @@ class MainWindow(QMainWindow):
         self.filepath = filename
         self.__open_column_selector()
 
-    def export_current_image(self):
+    def export_current_image_as_png(self):
         # if there is no image, warn with a pop up and return.
         if not self.filepath:
             popup = QMessageBox(self)
@@ -159,6 +104,33 @@ class MainWindow(QMainWindow):
         destination_file_path = os.path.join(destination_folder, file_name)
         QFile.copy(source_file_path, destination_file_path)
 
+    def export_current_image_as_svg(self):
+        # if there is no image, warn with a pop up and return.
+        if not self.filepath:
+            popup = QMessageBox(self)
+            popup.setText("Nothing to export. Please mine a model.")
+
+            close_button = popup.addButton("Close", QMessageBox.AcceptRole)
+            close_button.clicked.connect(popup.close)
+
+            # Show the pop-up message
+            popup.exec_()
+
+            return
+
+        # Open a file dialog to allow users to select a folder
+        source_folder = QDir.currentPath() + '/temp'
+        destination_folder = QFileDialog.getExistingDirectory(
+            self, "Select a folder", QDir.currentPath())
+
+        file_name = 'graph_viz.svg'
+        # Current algorithm should generate a svg in temp now. Generating it every time like the png file is costly.
+        self.algorithmViews[self.current_Algorithm].generate_svg()
+        # Copy the file from the source folder to the destination folder
+        source_file_path = os.path.join(source_folder, file_name)
+        destination_file_path = os.path.join(destination_folder, file_name)
+        QFile.copy(source_file_path, destination_file_path)
+
     def __open_column_selector(self):
 
         self.__reset_canvas()
@@ -170,12 +142,15 @@ class MainWindow(QMainWindow):
     def display_mining_result(self, timeLabel, caseLabel, eventLabel, algorithm = 0):
         self.__reset_canvas()
 
-        #Python switch case is too new. I will use the old fashioned way instead.
-        if algorithm == 0:
-            self.heuristicGraphDisplayView.mine(self.filepath, timeLabel, caseLabel, eventLabel)
-            self.mainWidget.setCurrentWidget(self.heuristicGraphDisplayView)
-        else:
+        try:
+            index = self.algorithmViews[algorithm]
+        except IndexError:
             print("ERROR Algorithm with index "+str(algorithm)+" not defined!")
+            return
+        
+        self.current_Algorithm = algorithm
+        self.algorithmViews[algorithm].mine(self.filepath, timeLabel, caseLabel, eventLabel)
+        self.mainWidget.setCurrentWidget(self.algorithmViews[algorithm])
 
     def __open_csv_file(self):
         # Open a file dialog to allow users to select a CSV file
@@ -188,10 +163,9 @@ class MainWindow(QMainWindow):
         return filename
 
     def __reset_canvas(self):
-        # if hasattr(self, 'slider_dock_widget'):
-        # self.removeDockWidget(self.slider_dock_widget)
-        self.heuristicGraphDisplayView.clear()
         self.columnSelectionView.clear()
+        for view in self.algorithmViews:
+            view.clear()
 
 
 if __name__ == "__main__":

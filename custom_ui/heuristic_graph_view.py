@@ -1,10 +1,11 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QSlider,QLabel,QWidget,QVBoxLayout, QHBoxLayout, QFrame, QGraphicsView, QGraphicsScene
+from PyQt5.QtWidgets import QWidget, QSlider,QLabel,QVBoxLayout, QHBoxLayout, QFrame, QGraphicsView, QGraphicsScene
 from PyQt5.QtGui import QPixmap, QPainter, QTransform
 from mining_algorithms.heuristic_mining import HeuristicMining
 from mining_algorithms.csv_preprocessor import read
+from custom_ui.algorithm_view_interface import AlgorithmViewInterface
 
-class HeuristicGraphDisplayView(QWidget):
+class HeuristicGraphView(QWidget, AlgorithmViewInterface):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
@@ -14,6 +15,7 @@ class HeuristicGraphDisplayView(QWidget):
         self.dependency_treshhold = 0.5
         self.min_frequency = 1
         self.max_frequency = 100
+        self.graphviz_graph = None
 
         # Create a QGraphicsView and set its properties
         self.view = QGraphicsView(self)
@@ -89,6 +91,7 @@ class HeuristicGraphDisplayView(QWidget):
 
         self.setLayout(main_layout)
 
+    #This function is called in main before the graph is shown.
     def mine(self, filepath, timeLabel, caseLabel, eventLabel):
         cases = read(filepath, timeLabel, caseLabel, eventLabel)
         self.Heuristic_Model = HeuristicMining(cases)
@@ -118,35 +121,21 @@ class HeuristicGraphDisplayView(QWidget):
     def __mine_and_draw_csv(self):
 
         '''with graphviz'''
-        graphviz_graph = self.Heuristic_Model.create_dependency_graph_with_graphviz(self.dependency_treshhold,self.min_frequency)
+        self.graphviz_graph = self.Heuristic_Model.create_dependency_graph_with_graphviz(self.dependency_treshhold,self.min_frequency)
         
         self.filepath = 'temp/graph_viz'
         filename = self.filepath + '.png'
-        graphviz_graph.render(self.filepath,format = 'png')
+        self.graphviz_graph.render(self.filepath,format = 'png')
 
         # Load the image and add it to the QGraphicsScene
         self.image = QPixmap(filename)
         self.scene.clear()
         self.item = self.scene.addPixmap(self.image)
+        print("heuristic_graph_display_view: CSV mined")
 
-        # Set the zoom level of the QGraphicsView
-        #self.zoom_factor = 1.0
-        #self.view.setTransform(QTransform().scale(self.zoom_factor, self.zoom_factor))
-
-        # self.figure.clear()
-        
-        # graph = plt.imread(filename)
-
-        # plt.imshow(graph)
-        # # Set axis limits to size of image
-        # plt.xlim([0, graph.shape[1]])
-        # plt.ylim([graph.shape[0], 0])
-
-        # # Turn off axis labels and tick marks
-        # plt.axis('off')
-
-        # self.canvas.draw()
-        print("CSV mined")
+    def generate_svg(self):
+        self.graphviz_graph.render(self.filepath,format = 'svg')
+        print("heuristic_graph_display_view: SVG generated")
 
     def clear(self):
         self.scene.clear()
