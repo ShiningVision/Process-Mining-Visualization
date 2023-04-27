@@ -10,6 +10,8 @@ class HeuristicMining():
         self.dependency_matrix = self.__create_dependency_matrix()
         self.edge_thickness_amplifier = 1
         self.max_edge_thickness = 5
+        self.min_vertice_size = 1
+        self.max_vertice_size = 10
 
     def create_dependency_graph_with_networkx(self, dependency_treshhold, min_frequency):
         dependency_graph = self.__create_dependency_graph(dependency_treshhold, min_frequency)

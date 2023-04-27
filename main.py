@@ -7,7 +7,7 @@ import pydot
 import networkx as nx
 import matplotlib.pyplot as plt
 from PyQt5.QtCore import QDir, QFile
-from PyQt5.QtWidgets import QApplication, QMainWindow, QStackedWidget, QMessageBox, QFileDialog, QTableWidget, QTableWidgetItem
+from PyQt5.QtWidgets import QStyleFactory, QApplication, QMainWindow, QStackedWidget, QMessageBox, QFileDialog, QTableWidget, QTableWidgetItem
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from custom_ui.column_selection_view import ColumnSelectionView
 from custom_ui.heuristic_graph_display_view import HeuristicGraphDisplayView
@@ -196,5 +196,6 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    app.setStyle(QStyleFactory.create('Fusion')) # table header coloring won't work on windows style.
     window = MainWindow()
     sys.exit(app.exec_())

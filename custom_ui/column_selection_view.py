@@ -1,16 +1,25 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QComboBox, QHBoxLayout, QPushButton, QTableWidget, QMessageBox, QTableWidgetItem, QWidget, QVBoxLayout
+from PyQt5.QtGui import QColor
 import csv
 
 class ColumnSelectionView(QWidget):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
-        
+
+        #global const variables
+        self.eventColor = "#CDD8E6"
+        self.caseColor = "#BDD8E6"
+        self.timeColor = "#ADD8E6"
+
         # assign default labels
         self.timeLabel = "timestamp"
         self.caseLabel = "case"
         self.eventLabel = "event"
+        self.timeIndex = 0
+        self.caseIndex = 2
+        self.eventIndex = 1
         self.selected_column = 0
         self.selected_algorithm = 0
 
@@ -33,17 +42,17 @@ class ColumnSelectionView(QWidget):
         # set up assign column buttons
         self.timeColumn_button = QPushButton('Assign to \nTimestamp', self)
         self.timeColumn_button.setFixedSize(100, 70)
-        self.timeColumn_button.setStyleSheet("background-color: #ADD8E6;")
+        self.timeColumn_button.setStyleSheet(f"background-color: {self.timeColor};")
         self.timeColumn_button.clicked.connect(self.__assign_timeColumn)
 
         self.caseColumn_button = QPushButton('Assign to \nCase', self)
         self.caseColumn_button.setFixedSize(100, 70)
-        self.caseColumn_button.setStyleSheet("background-color: #ADD8E6;")
+        self.caseColumn_button.setStyleSheet(f"background-color: {self.caseColor};")
         self.caseColumn_button.clicked.connect(self.__assign_caseColumn)
 
         self.eventColumn_button = QPushButton('Assign to \nEvent', self)
         self.eventColumn_button.setFixedSize(100, 70)
-        self.eventColumn_button.setStyleSheet("background-color: #ADD8E6;")
+        self.eventColumn_button.setStyleSheet(f"background-color: {self.eventColor};")
         self.eventColumn_button.clicked.connect(self.__assign_eventColumn)
 
         # set up start import button
@@ -96,6 +105,9 @@ class ColumnSelectionView(QWidget):
                 self.table.insertRow(row_index)
                 for col_index, col_data in enumerate(row_data):
                     self.table.setItem(row_index, col_index, QTableWidgetItem(col_data))
+            
+            self.__color_headers()
+          
 
     def load_algorithms(self, array):
         for element in array:
@@ -114,15 +126,32 @@ class ColumnSelectionView(QWidget):
 
     def __assign_timeColumn(self):
         self.timeLabel = self.table.horizontalHeaderItem(self.selected_column).text()
+        self.timeIndex = self.selected_column
+        self.__color_headers()
         print(self.timeLabel + " assigned as time column")
 
     def __assign_caseColumn(self):
         self.caseLabel = self.table.horizontalHeaderItem(self.selected_column).text()
+        self.caseIndex = self.selected_column
+        self.__color_headers()
         print(self.caseLabel + " assigned as case column")
 
     def __assign_eventColumn(self):
         self.eventLabel = self.table.horizontalHeaderItem(self.selected_column).text()
+        self.eventIndex = self.selected_column
+        self.__color_headers()
         print(self.eventLabel + " assigned as event column")
+    
+    def __color_headers(self):
+        for i in range(self.table.columnCount()):
+            if self.timeIndex == i:
+                self.table.horizontalHeaderItem(i).setBackground(QColor(self.timeColor))
+            elif self.eventIndex == i:
+                self.table.horizontalHeaderItem(i).setBackground(QColor(self.eventColor))
+            elif self.caseIndex == i:
+                self.table.horizontalHeaderItem(i).setBackground(QColor(self.caseColor))
+            else:
+                self.table.horizontalHeaderItem(i).setBackground(QColor("#ffffff"))
 
     def clear(self):
         self.timeLabel = "timestamp"
@@ -131,6 +160,7 @@ class ColumnSelectionView(QWidget):
         self.selected_column = 0
         self.column_selector.clear()
         self.algorithm_selector.clear()
+        self.table.clear()
 
     def __start_import(self):
         msgBox = QMessageBox()

@@ -1,8 +1,6 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QSlider,QLabel,QWidget,QVBoxLayout, QHBoxLayout, QFrame
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-import matplotlib.pyplot as plt
+from PyQt5.QtWidgets import QSlider,QLabel,QWidget,QVBoxLayout, QHBoxLayout, QFrame, QGraphicsView, QGraphicsScene
+from PyQt5.QtGui import QPixmap, QPainter, QTransform
 from mining_algorithms.heuristic_mining import HeuristicMining
 from mining_algorithms.csv_preprocessor import read
 
@@ -10,11 +8,39 @@ class HeuristicGraphDisplayView(QWidget):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
-        self.figure = plt.figure(figsize=(50, 50))
-        self.canvas = FigureCanvas(self.figure)
+
+        #modifiers and global variables
+        self.zoom_factor = 1.0
         self.dependency_treshhold = 0.5
         self.min_frequency = 1
         self.max_frequency = 100
+
+        # Create a QGraphicsView and set its properties
+        self.view = QGraphicsView(self)
+        self.view.setRenderHint(QPainter.Antialiasing)
+        self.view.setRenderHint(QPainter.SmoothPixmapTransform)
+        self.view.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
+        self.view.setDragMode(QGraphicsView.ScrollHandDrag)
+
+        # Create a QGraphicsScene and set its properties
+        self.scene = QGraphicsScene(self)
+        self.view.setScene(self.scene)
+
+        # Set the zoom level of the QGraphicsView
+        self.view.setTransform(QTransform().scale(self.zoom_factor, self.zoom_factor))
+
+        # Add a slider to to control the zoom level
+        self.zoom_slider = QSlider(Qt.Horizontal)
+        self.zoom_slider.setMinimum(1)
+        self.zoom_slider.setMaximum(200)
+        self.zoom_slider.setValue(100)
+        self.zoom_slider.setTickInterval(10)
+        self.zoom_slider.setTickPosition(QSlider.TicksBelow)
+        self.zoom_slider.valueChanged.connect(self.__zoom)
+
+        view_layout = QVBoxLayout()
+        view_layout.addWidget(self.zoom_slider)
+        view_layout.addWidget(self.view)
         
         # Create the slider frame
         slider_frame = QFrame()
@@ -39,23 +65,20 @@ class HeuristicGraphDisplayView(QWidget):
         self.thresh_slider_label = QLabel(f"Dependency Threshhold: {self.dependency_treshhold}")
         self.thresh_slider_label.setAlignment(Qt.AlignCenter)
 
-        slider1_layout = QVBoxLayout()
-        slider1_layout.addWidget(self.freq_slider)
-        slider1_layout.addWidget(self.freq_slider_label)
+        freq_slider_layout = QVBoxLayout()
+        freq_slider_layout.addWidget(self.freq_slider)
+        freq_slider_layout.addWidget(self.freq_slider_label)
 
-        slider2_layout = QVBoxLayout()
-        slider2_layout.addWidget(self.thresh_slider)
-        slider2_layout.addWidget(self.thresh_slider_label)
+        thresh_slider_layout = QVBoxLayout()
+        thresh_slider_layout.addWidget(self.thresh_slider)
+        thresh_slider_layout.addWidget(self.thresh_slider_label)
 
-        slider_layout.addLayout(slider1_layout)
-        slider_layout.addLayout(slider2_layout)
+        slider_layout.addLayout(freq_slider_layout)
+        slider_layout.addLayout(thresh_slider_layout)
 
-        # Create image layout
-        image_layout = QVBoxLayout(self)
-        
         # Create the main layout
         main_layout = QHBoxLayout(self)
-        main_layout.addWidget(self.canvas, stretch=3)
+        main_layout.addLayout(view_layout, stretch=3)
         main_layout.addWidget(slider_frame, stretch=1)
 
         # Add the slider layout to the slider frame layout
@@ -86,6 +109,11 @@ class HeuristicGraphDisplayView(QWidget):
         # Redraw graph when value changes
         self.dependency_treshhold = value/100
         self.__mine_and_draw_csv()
+
+    def __zoom(self, value):
+        # Calculate the zoom factor based on the slider value
+        self.zoom_factor = value / 100.0
+        self.view.setTransform(QTransform().scale(self.zoom_factor, self.zoom_factor))
     
     def __mine_and_draw_csv(self):
 
@@ -96,21 +124,32 @@ class HeuristicGraphDisplayView(QWidget):
         filename = self.filepath + '.png'
         graphviz_graph.render(self.filepath,format = 'png')
 
-        self.figure.clear()
+        # Load the image and add it to the QGraphicsScene
+        self.image = QPixmap(filename)
+        self.scene.clear()
+        self.item = self.scene.addPixmap(self.image)
+
+        # Set the zoom level of the QGraphicsView
+        #self.zoom_factor = 1.0
+        #self.view.setTransform(QTransform().scale(self.zoom_factor, self.zoom_factor))
+
+        # self.figure.clear()
         
-        graph = plt.imread(filename)
+        # graph = plt.imread(filename)
 
-        plt.imshow(graph)
-        # Set axis limits to size of image
-        plt.xlim([0, graph.shape[1]])
-        plt.ylim([graph.shape[0], 0])
+        # plt.imshow(graph)
+        # # Set axis limits to size of image
+        # plt.xlim([0, graph.shape[1]])
+        # plt.ylim([graph.shape[0], 0])
 
-        # Turn off axis labels and tick marks
-        plt.axis('off')
+        # # Turn off axis labels and tick marks
+        # plt.axis('off')
 
-        self.canvas.draw()
+        # self.canvas.draw()
         print("CSV mined")
 
     def clear(self):
+        self.scene.clear()
         self.dependency_treshhold= 0.5
         self.min_frequency = 1
+        self.zoom_factor = 1.0
