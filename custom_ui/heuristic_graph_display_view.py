@@ -50,6 +50,9 @@ class HeuristicGraphDisplayView(QWidget):
         slider_layout.addLayout(slider1_layout)
         slider_layout.addLayout(slider2_layout)
 
+        # Create image layout
+        image_layout = QVBoxLayout(self)
+        
         # Create the main layout
         main_layout = QHBoxLayout(self)
         main_layout.addWidget(self.canvas, stretch=3)

@@ -130,6 +130,7 @@ class ColumnSelectionView(QWidget):
         self.eventLabel = "event"
         self.selected_column = 0
         self.column_selector.clear()
+        self.algorithm_selector.clear()
 
     def __start_import(self):
         msgBox = QMessageBox()

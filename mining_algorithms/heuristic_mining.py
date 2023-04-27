@@ -60,6 +60,9 @@ class HeuristicMining():
     
     def get_max_frequency(self):
         max_freq = 0
+        for value in list(self.appearence_frequency.values()):
+            if value > max_freq:
+                max_freq= value
         return max_freq
     
     def __filter_out_all_events(self):
@@ -92,13 +95,16 @@ class HeuristicMining():
     def __get_start_nodes(self):
         #a start node is a node where an entire column in the succession_matrix is 0.
         start_nodes = []
-        for column in range(len(self.succession_matrix)):
-            incoming_edges = 0
-            for row in range(len(self.succession_matrix)):
-                if self.succession_matrix[row][column] != 0:
-                    incoming_edges +=1
-            if incoming_edges == 0:
-                start_nodes.append(self.events[column])
+        for case in self.log:
+            if case[0] not in start_nodes:
+                start_nodes.append(case[0])
+        # for column in range(len(self.succession_matrix)):
+        #     incoming_edges = 0
+        #     for row in range(len(self.succession_matrix)):
+        #         if self.succession_matrix[row][column] != 0:
+        #             incoming_edges +=1
+        #     if incoming_edges == 0:
+        #         start_nodes.append(self.events[column])
         
         return start_nodes
         
@@ -106,13 +112,17 @@ class HeuristicMining():
     def __get_end_nodes(self):
         #an end node is a node where an entire row in the succession_matrix is 0.
         end_nodes = []
-        for row in range(len(self.succession_matrix)):
-            outgoing_edges = 0
-            for column in range(len(self.succession_matrix)):
-                if self.succession_matrix[row][column] != 0:
-                    outgoing_edges +=1
-            if outgoing_edges == 0:
-                end_nodes.append(self.events[row])
+        for case in self.log:
+            last_index = len(case)-1
+            if case[last_index] not in end_nodes:
+                end_nodes.append(case[last_index])
+        # for row in range(len(self.succession_matrix)):
+        #     outgoing_edges = 0
+        #     for column in range(len(self.succession_matrix)):
+        #         if self.succession_matrix[row][column] != 0:
+        #             outgoing_edges +=1
+        #     if outgoing_edges == 0:
+        #         end_nodes.append(self.events[row])
         
         return end_nodes
 
