@@ -15,7 +15,7 @@ Required Python libraries are in requirements.txt
 Open a CMD in THIS folder and type 
 ```
 python main.py
-```.
+
 It will open a desktop application that has a 'File' in the left upper corner.
 There are a bunch of options here. The main one is 'Heuristic mine CSV'.
 Select a csv file and you will get the results of the mining algorithm displayed.
@@ -42,3 +42,4 @@ In main.py you need to do the following:
 
 In your [algorithm]_view.py file:
 1. inherit from algorithm_view_interface.py like in heuristic_graph_view.py
+2. The export svg and export png functions of main only copy either graph_viz.png or graph_viz.svg from the temp folder to the desired destination. It is your responsibility to generate those files.

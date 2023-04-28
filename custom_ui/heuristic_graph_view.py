@@ -132,6 +132,11 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
         self.scene.clear()
         self.item = self.scene.addPixmap(self.image)
         print("heuristic_graph_display_view: CSV mined")
+        
+    def generate_png(self):
+        #the heuristic algorithm loads the png to show on the canvas.
+        #No need to generate it again, if it is already there.
+        return
 
     def generate_svg(self):
         self.graphviz_graph.render(self.filepath,format = 'svg')

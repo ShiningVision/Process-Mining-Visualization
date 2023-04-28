@@ -99,6 +99,9 @@ class MainWindow(QMainWindow):
             self, "Select a folder", QDir.currentPath())
 
         file_name = 'graph_viz.png'
+
+        # Current algorithm should generate a png in temp now.
+        self.algorithmViews[self.current_Algorithm].generate_png()
         # Copy the file from the source folder to the destination folder
         source_file_path = os.path.join(source_folder, file_name)
         destination_file_path = os.path.join(destination_folder, file_name)
@@ -124,7 +127,7 @@ class MainWindow(QMainWindow):
             self, "Select a folder", QDir.currentPath())
 
         file_name = 'graph_viz.svg'
-        # Current algorithm should generate a svg in temp now. Generating it every time like the png file is costly.
+        # Current algorithm should generate a svg in temp now.
         self.algorithmViews[self.current_Algorithm].generate_svg()
         # Copy the file from the source folder to the destination folder
         source_file_path = os.path.join(source_folder, file_name)
