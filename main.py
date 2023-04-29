@@ -66,6 +66,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Graph Viewer")
         self.show()
 
+    # gets called by start_view.py 'create new process' button
     def mine_csv(self):
 
         # Open a file dialog to allow users to select a CSV file
@@ -134,7 +135,7 @@ class MainWindow(QMainWindow):
         destination_file_path = os.path.join(destination_folder, file_name)
         QFile.copy(source_file_path, destination_file_path)
 
-    # gets called by the 'load existing process' button in start_view.py
+    # gets called by start_view.py 'load existing process' button
     def start_mine_txt(self, algorithm = 0):
         self.__reset_canvas()
 
@@ -147,14 +148,6 @@ class MainWindow(QMainWindow):
         cases = load()
         self.algorithmViews[algorithm].mine_txt(cases)
         self.mainWidget.setCurrentWidget(self.algorithmViews[algorithm])
-
-    def __open_column_selector(self):
-
-        self.__reset_canvas()
-        # change central widget
-        self.columnSelectionView.load_csv(self.filepath)
-        self.columnSelectionView.load_algorithms(self.algorithms)
-        self.mainWidget.setCurrentWidget(self.columnSelectionView)
 
     # gets called by column_selection_view.py
     def start_mine_csv(self, timeLabel, caseLabel, eventLabel, algorithm = 0):
@@ -170,7 +163,15 @@ class MainWindow(QMainWindow):
         self.algorithmViews[algorithm].mine(self.filepath, timeLabel, caseLabel, eventLabel)
         self.mainWidget.setCurrentWidget(self.algorithmViews[algorithm])
 
+    def __open_column_selector(self):
+        self.__reset_canvas()
+        # change central widget
+        self.columnSelectionView.load_csv(self.filepath)
+        self.columnSelectionView.load_algorithms(self.algorithms)
+        self.mainWidget.setCurrentWidget(self.columnSelectionView)
+
     def __reset_canvas(self):
+        self.welcomeView.clear()
         self.columnSelectionView.clear()
         for view in self.algorithmViews:
             view.clear()

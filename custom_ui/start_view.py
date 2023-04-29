@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QComboBox
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
@@ -53,7 +52,7 @@ class StartView(QWidget):
             self.algorithm_selector.addItem(element)
 
     def load_existing_process(self):
-        self.parent.start_mine_txt()
+        self.parent.start_mine_txt(self.selected_algorithm)
 
     def mine_new_process(self):
         self.parent.mine_csv()
@@ -61,3 +60,6 @@ class StartView(QWidget):
     def __algorithm_selected(self, index):
         self.algorithm_selector.setCurrentIndex(index)
         self.selected_algorithm = index
+
+    def clear(self):
+        self.algorithm_selector.clear()
