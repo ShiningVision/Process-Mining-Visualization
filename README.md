@@ -8,7 +8,10 @@ This project is in developement. Unfinished and likely contains bugs.
 Python version 3.10.7 ----- Older versions likely to work as well, but not tested.
 Download Python from www.python.org
 
-Required Python libraries are in requirements.txt
+Required Python libraries are in requirements.txt and can be installed with
+```
+pip install -r requirements.txt
+```
 
 
 # Usage Interface
