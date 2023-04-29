@@ -99,6 +99,12 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
         self.freq_slider.setRange(self.min_frequency,self.max_frequency)
         self.__mine_and_draw_csv()
 
+    def mine_txt(self, cases):
+        self.Heuristic_Model = HeuristicMining(cases)
+        self.max_frequency = self.Heuristic_Model.get_max_frequency()
+        self.freq_slider.setRange(self.min_frequency,self.max_frequency)
+        self.__mine_and_draw_csv()
+
     def __freq_slider_changed(self, value):
         # Update the label with the slider value
         self.freq_slider_label.setText(f"Min. Frequency: {value}")
@@ -131,7 +137,7 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
         self.image = QPixmap(filename)
         self.scene.clear()
         self.item = self.scene.addPixmap(self.image)
-        print("heuristic_graph_display_view: CSV mined")
+        print("heuristic_graph_view: CSV mined")
         
     def generate_png(self):
         #the heuristic algorithm loads the png to show on the canvas.
@@ -140,7 +146,7 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
 
     def generate_svg(self):
         self.graphviz_graph.render(self.filepath,format = 'svg')
-        print("heuristic_graph_display_view: SVG generated")
+        print("heuristic_graph_view: SVG generated")
 
     def clear(self):
         self.scene.clear()

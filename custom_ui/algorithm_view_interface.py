@@ -9,9 +9,10 @@ class HybridMeta(ABCMeta, type(QWidget)):
 class AlgorithmViewInterface(ABC, metaclass = HybridMeta):
 
     #This method gets called in main before the User interface switches to your View.
+    #It should run your algorithm and initiate all variables, so you can show your View.
     @abstractmethod
     def mine(self):
-        raise NotImplementedError('users must define min() to use this base class')
+        raise NotImplementedError('users must define mine() to use this base class')
     
     # a png called graph_viz.png must be created in the temp folder.
     # The export png function only copies this file to wherever wished.

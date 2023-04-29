@@ -173,5 +173,5 @@ class ColumnSelectionView(QWidget):
         if ret == QMessageBox.Cancel:
             return
         
-        self.parent.display_mining_result(self.timeLabel, self.caseLabel, self.eventLabel, self.selected_algorithm)
+        self.parent.start_mine_csv(self.timeLabel, self.caseLabel, self.eventLabel, self.selected_algorithm)
     

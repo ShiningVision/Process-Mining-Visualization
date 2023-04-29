@@ -16,11 +16,11 @@ Open a CMD in THIS folder and type
 ```
 python main.py
 
-It will open a desktop application that has a 'File' in the left upper corner.
-There are a bunch of options here. The main one is 'Heuristic mine CSV'.
-Select a csv file and you will get the results of the mining algorithm displayed.
+It will open a desktop application.
+The lower right button lets you select a CSV file and mine it. Your CSV data will be saved for later.
+The lower left button lets you load saved data, if you have any.
 
-There is also the 'export png' option, that lets you export the image on display as 'graph_viz.png'.
+There are also the 'export png' and 'export svg' options under 'File', that lets you export the image on display as 'graph_viz.png' or 'graph_viz.svg'.
 
 ### How to run unit tests?
 

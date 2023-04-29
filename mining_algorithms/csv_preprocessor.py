@@ -1,5 +1,7 @@
 import pandas as pd
 import csv
+import os
+from PyQt5.QtWidgets import QFileDialog
 '''
 For reading in csv files. Returns a list of all cases.
 '''
@@ -11,8 +13,8 @@ def read(filename, timeLabel = 'timestamp', caseLabel = 'case', eventLabel = 'ev
 
     # read the CSV file
     df = pd.read_csv(filename, delimiter = delimiter)
-    print(timeLabel, caseLabel, eventLabel)
-    print(filename)
+    #print(timeLabel, caseLabel, eventLabel)
+    #print(filename)
     # check that the required columns exist
     required_columns = [timeLabel, caseLabel, eventLabel]
     if not all(col in df.columns for col in required_columns):
@@ -38,4 +40,40 @@ def read(filename, timeLabel = 'timestamp', caseLabel = 'case', eventLabel = 'ev
         else:
             cases[case] = [event]
     
-    return list(cases.values())
+    #save the cases, so it can be loaded in future sessions without read() again:
+    array = list(cases.values())
+
+    # Extract the name of the file from filepath
+    name = os.path.splitext(os.path.basename(filename))[0]
+    print(name)
+    destination_path = "temp/saves/"
+    destination = destination_path + name + ".txt"
+
+    # Save array to destination.
+    with open(destination, "w") as f:
+        for case in array:
+            for event in case:
+                f.write(event)
+                f.write(" ")
+            f.write("\n")
+    
+    return array
+
+def load():
+    file_path, _ = QFileDialog.getOpenFileName(None, "Select file", "temp/saves/", "Text files (*.txt)")
+
+    # If the user cancels the file dialog, return
+    if not file_path:
+        return
+    
+    if file_path:
+        # Convert the txt content back to array
+        with open(file_path, "r") as f:
+            array = []
+            for line in f:
+                array.append(line.strip().split())
+        return array
+
+    return
+
+
