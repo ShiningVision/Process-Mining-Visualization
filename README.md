@@ -15,6 +15,7 @@ Required Python libraries are in requirements.txt
 Open a CMD in THIS folder and type 
 ```
 python main.py
+```
 
 It will open a desktop application.
 The lower right button lets you select a CSV file and mine it. Your CSV data will be saved for later.
@@ -28,6 +29,7 @@ e.g. If you want to run unit tests of `heuristic_mining_test.py`, just type the 
 
 ```
 python -m unittest tests.heuristic_mining_test
+```
 
 in THIS folder.
 
