@@ -61,15 +61,15 @@ class MainWindow(QMainWindow):
         # Add a file menu to allow users to upload csv files and so on.
         file_menu = self.menuBar().addMenu("File")
         upload_action_mine_csv = file_menu.addAction("MINE NEW PROCESS FROM CSV")
+        edit_dot = file_menu.addAction("Edit dot file")
         export_current_image_png = file_menu.addAction("Export png")
         export_current_image_svg = file_menu.addAction("Export svg")
         export_current_image_dot = file_menu.addAction("Export dot")
-        view_html_as_graphviz = file_menu.addAction("Edit dot file")
         upload_action_mine_csv.triggered.connect(self.mine_csv)
         export_current_image_png.triggered.connect(self.export_current_image_as_png)
         export_current_image_svg.triggered.connect(self.export_current_image_as_svg)
         export_current_image_dot.triggered.connect(self.export_current_image_as_dot)
-        view_html_as_graphviz.triggered.connect(self.view_html)
+        edit_dot.triggered.connect(self.view_html)
 
         # Set the window title and show the window
         self.setWindowTitle("Graph Viewer")
@@ -178,8 +178,6 @@ class MainWindow(QMainWindow):
         
     # gets called by start_view.py 'load existing process' button
     def start_mine_txt(self, algorithm = 0):
-        self.__reset_canvas()
-
         try:
             index = self.algorithmViews[algorithm]
         except IndexError:
@@ -190,6 +188,7 @@ class MainWindow(QMainWindow):
         if not cases:
             return
         
+        self.__reset_canvas()
         self.algorithmViews[algorithm].mine_txt(cases)
         self.img_generated = True
         self.mainWidget.setCurrentWidget(self.algorithmViews[algorithm])
@@ -217,6 +216,7 @@ class MainWindow(QMainWindow):
         self.mainWidget.setCurrentWidget(self.columnSelectionView)
 
     def __reset_canvas(self):
+        self.htmlView.clear()
         self.welcomeView.clear()
         self.columnSelectionView.clear()
         for view in self.algorithmViews:

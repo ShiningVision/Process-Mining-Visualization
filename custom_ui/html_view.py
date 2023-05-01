@@ -54,6 +54,10 @@ class HTMLView(QWidget):
         self.png_viewer.setScene(self.png_path)
 
         return 1
+    
+    def clear(self):
+        self.text_editor.clear()
+        self.filepath = None
 
     #generate the png used to display the graph
     def __dot_to_png(self):
