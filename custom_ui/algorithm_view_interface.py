@@ -14,6 +14,11 @@ class AlgorithmViewInterface(ABC, metaclass = HybridMeta):
     def mine(self):
         raise NotImplementedError('users must define mine() to use this base class')
     
+    #This method is for loading existing process, like mine, but skipping the preprocess procedure
+    @abstractmethod
+    def mine_txt(self):
+        raise NotImplementedError('users must define mine_txt() to use this base class')
+    
     # a png called graph_viz.png must be created in the temp folder.
     # The export png function only copies this file to wherever wished.
     @abstractmethod
@@ -26,7 +31,12 @@ class AlgorithmViewInterface(ABC, metaclass = HybridMeta):
     def generate_svg(self):
         raise NotImplementedError('users must define generate_svg() to use this base class')
     
+    @abstractmethod
+    def generate_dot(self):
+        raise NotImplementedError('users must define clear() to use this base class')
+    
     # Clean up after yourself. Don't litter around.
     @abstractmethod
     def clear(self):
         raise NotImplementedError('users must define clear() to use this base class')
+    

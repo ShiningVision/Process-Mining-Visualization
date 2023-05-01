@@ -3,10 +3,10 @@ csv
 numpy
 pandas
 pydot
-networkx
 graphviz
 matplotlib.pyplot
 PyQt5.QtCore
 PyQt5.QtWidgets
+PyQtWebEngine
 matplotlib.backends.backend_qt5agg
 matplotlib.figure

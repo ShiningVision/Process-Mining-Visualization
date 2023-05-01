@@ -50,30 +50,16 @@ def read(filename, timeLabel = 'timestamp', caseLabel = 'case', eventLabel = 'ev
     destination = destination_path + name + ".txt"
 
     # Save array to destination.
+
     with open(destination, "w") as f:
         for case in array:
             for event in case:
-                f.write(event)
+                f.write(str(event))
                 f.write(" ")
             f.write("\n")
-    
+            
     return array
 
-def load():
-    file_path, _ = QFileDialog.getOpenFileName(None, "Select file", "temp/saves/", "Text files (*.txt)")
 
-    # If the user cancels the file dialog, return
-    if not file_path:
-        return
-    
-    if file_path:
-        # Convert the txt content back to array
-        with open(file_path, "r") as f:
-            array = []
-            for line in f:
-                array.append(line.strip().split())
-        return array
-
-    return
 
 

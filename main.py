@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QStyleFactory, QApplication, QMainWindow, QStackedWi
 from custom_ui.column_selection_view import ColumnSelectionView
 from custom_ui.heuristic_graph_view import HeuristicGraphView
 from custom_ui.start_view import StartView
-from mining_algorithms.csv_preprocessor import load
+from custom_ui.html_view import HTMLView
 
 
 class MainWindow(QMainWindow):
@@ -18,11 +18,15 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(1200, 600)
 
         # global variables with default values
+        self.img_generated = False
         self.filepath = None
         self.current_Algorithm = 0
 
-        # Add a view widet for the homepage
+        # Add a view widget for the homepage
         self.welcomeView = StartView(self)
+
+        # Add a view widget for html viewer
+        self.htmlView = HTMLView(self)
 
         # Add a view widget for assigning the necessary column-labels of the csv
         self.columnSelectionView = ColumnSelectionView(self)
@@ -43,6 +47,7 @@ class MainWindow(QMainWindow):
         self.mainWidget = QStackedWidget(self)
         self.mainWidget.addWidget(self.welcomeView)
         self.mainWidget.addWidget(self.columnSelectionView)
+        self.mainWidget.addWidget(self.htmlView)
 
         # Add all the algorithm views
         for view in self.algorithmViews:
@@ -55,12 +60,16 @@ class MainWindow(QMainWindow):
 
         # Add a file menu to allow users to upload csv files and so on.
         file_menu = self.menuBar().addMenu("File")
-        upload_action_mine_csv = file_menu.addAction("Mine new process from CSV")
+        upload_action_mine_csv = file_menu.addAction("MINE NEW PROCESS FROM CSV")
         export_current_image_png = file_menu.addAction("Export png")
         export_current_image_svg = file_menu.addAction("Export svg")
+        export_current_image_dot = file_menu.addAction("Export dot")
+        view_html_as_graphviz = file_menu.addAction("Edit dot file")
         upload_action_mine_csv.triggered.connect(self.mine_csv)
         export_current_image_png.triggered.connect(self.export_current_image_as_png)
         export_current_image_svg.triggered.connect(self.export_current_image_as_svg)
+        export_current_image_dot.triggered.connect(self.export_current_image_as_dot)
+        view_html_as_graphviz.triggered.connect(self.view_html)
 
         # Set the window title and show the window
         self.setWindowTitle("Graph Viewer")
@@ -82,7 +91,7 @@ class MainWindow(QMainWindow):
 
     def export_current_image_as_png(self):
         # if there is no image, warn with a pop up and return.
-        if not self.filepath:
+        if not self.img_generated:
             popup = QMessageBox(self)
             popup.setText("Nothing to export. Please mine a model.")
 
@@ -110,7 +119,7 @@ class MainWindow(QMainWindow):
 
     def export_current_image_as_svg(self):
         # if there is no image, warn with a pop up and return.
-        if not self.filepath:
+        if not self.img_generated:
             popup = QMessageBox(self)
             popup.setText("Nothing to export. Please mine a model.")
 
@@ -135,6 +144,38 @@ class MainWindow(QMainWindow):
         destination_file_path = os.path.join(destination_folder, file_name)
         QFile.copy(source_file_path, destination_file_path)
 
+    def export_current_image_as_dot(self):
+            # if there is no image, warn with a pop up and return.
+            if not self.img_generated:
+                popup = QMessageBox(self)
+                popup.setText("Nothing to export. Please mine a model.")
+
+                close_button = popup.addButton("Close", QMessageBox.AcceptRole)
+                close_button.clicked.connect(popup.close)
+
+                # Show the pop-up message
+                popup.exec_()
+
+                return
+
+            # Open a file dialog to allow users to select a folder
+            source_folder = QDir.currentPath() + '/temp'
+            destination_folder = QFileDialog.getExistingDirectory(
+                self, "Select a folder", QDir.currentPath())
+
+            file_name = 'graph_viz.dot'
+            # Current algorithm should generate a svg in temp now.
+            self.algorithmViews[self.current_Algorithm].generate_dot()
+            # Copy the file from the source folder to the destination folder
+            source_file_path = os.path.join(source_folder, file_name)
+            destination_file_path = os.path.join(destination_folder, file_name)
+            QFile.copy(source_file_path, destination_file_path)
+
+    def view_html(self):
+        loaded = self.htmlView.load_file()
+        if loaded:
+            self.mainWidget.setCurrentWidget(self.htmlView)
+        
     # gets called by start_view.py 'load existing process' button
     def start_mine_txt(self, algorithm = 0):
         self.__reset_canvas()
@@ -145,8 +186,12 @@ class MainWindow(QMainWindow):
             print("ERROR Algorithm with index "+str(algorithm)+" not defined!")
             return
         
-        cases = load()
+        cases = self.__load()
+        if not cases:
+            return
+        
         self.algorithmViews[algorithm].mine_txt(cases)
+        self.img_generated = True
         self.mainWidget.setCurrentWidget(self.algorithmViews[algorithm])
 
     # gets called by column_selection_view.py
@@ -161,6 +206,7 @@ class MainWindow(QMainWindow):
         
         self.current_Algorithm = algorithm
         self.algorithmViews[algorithm].mine(self.filepath, timeLabel, caseLabel, eventLabel)
+        self.img_generated = True
         self.mainWidget.setCurrentWidget(self.algorithmViews[algorithm])
 
     def __open_column_selector(self):
@@ -176,6 +222,23 @@ class MainWindow(QMainWindow):
         for view in self.algorithmViews:
             view.clear()
 
+# loads a saved txt file back into arrays
+    def __load(self):
+        file_path, _ = QFileDialog.getOpenFileName(None, "Select file", "temp/saves/", "Text files (*.txt)")
+
+        # If the user cancels the file dialog, return
+        if not file_path:
+            return
+        
+        if file_path:
+            # Convert the txt content back to array
+            with open(file_path, "r") as f:
+                array = []
+                for line in f:
+                    array.append(line.strip().split())
+            return array
+
+        return
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
