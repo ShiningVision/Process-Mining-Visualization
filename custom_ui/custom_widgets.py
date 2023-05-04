@@ -45,6 +45,7 @@ class PNGViewer(QWidget):
         self.zoom_factor = value / 100.0
         self.view.setTransform(QTransform().scale(self.zoom_factor, self.zoom_factor))
 
+    # CALL BEFORE INIT
     def setScene(self, filename):
         self.image = QPixmap(filename)
         self.scene.clear()

@@ -19,9 +19,10 @@ class HeuristicMining():
         graph = Digraph()
 
         # add nodes to graph
+        max_freq= self.get_max_frequency()
         for node in self.events:
             node_freq = self.appearence_frequency.get(node)
-            w = 1 + node_freq/self.get_max_frequency()
+            w = 1 + (node_freq/max_freq)
             h = w/2
             graph.node(str(node), label = str(node)+"\n"+str(node_freq),width = str(w), height = str(h))
 
@@ -32,7 +33,8 @@ class HeuristicMining():
                     if dependency_treshhold == 0:
                         edge_thickness = 0.1
                     else:
-                        edge_thickness = self.dependency_matrix[i][j]/dependency_treshhold * self.edge_thickness_amplifier
+                        edge_thickness = (self.dependency_matrix[i][j]/dependency_treshhold) * self.edge_thickness_amplifier
+
                         if(edge_thickness>self.max_edge_thickness):
                             edge_thickness = self.max_edge_thickness
                     graph.edge(str(self.events[i]), str(self.events[j]), penwidth = str(edge_thickness), label = str(int(self.succession_matrix[i][j])))
