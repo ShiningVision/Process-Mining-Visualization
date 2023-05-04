@@ -1,24 +1,87 @@
 digraph {
-	a [label="a
-40" height=1.0 width=2.0]
-	e [label="e
-40" height=1.0 width=2.0]
-	b [label="b
-21" height=0.7625 width=1.525]
-	c [label="c
-21" height=0.7625 width=1.525]
-	d [label="d
-17" height=0.7125 width=1.425]
-	a -> e [label=5 penwidth=1.6666666666666667]
-	a -> b [label=11 penwidth=1.8333333333333333]
-	a -> c [label=11 penwidth=1.8333333333333333]
-	a -> d [label=13 penwidth=1.8571428571428572]
-	b -> e [label=11 penwidth=1.8333333333333333]
-	c -> e [label=11 penwidth=1.8333333333333333]
-	d -> e [label=13 penwidth=1.8571428571428572]
-	d -> d [label=4 penwidth=1.6]
+	313 [label="313
+4756" height=0.7823892649329058 width=1.5647785298658117]
+	327 [label="327
+4956" height=0.7942643391521197 width=1.5885286783042394]
+	305 [label="305
+7407" height=0.9397933737085857 width=1.8795867474171715]
+	269 [label="269
+4298" height=0.7551953449709061 width=1.5103906899418122]
+	257 [label="257
+7654" height=0.9544590903693149 width=1.9089181807386297]
+	296 [label="296
+8421" height=1.0 width=2.0]
+	271 [label="271
+4956" height=0.7942643391521197 width=1.5885286783042394]
+	330 [label="330
+4387" height=0.7604797529984562 width=1.5209595059969123]
+	280 [label="280
+5785" height=0.8434865217907612 width=1.6869730435815224]
+	247 [label="247
+4431" height=0.7630922693266833 width=1.5261845386533666]
+	238 [label="238
+2437" height=0.644697779361121 width=1.289395558722242]
+	230 [label="230
+6282" height=0.8729960812255076 width=1.7459921624510153]
+	318 [label="318
+288" height=0.517100106875668 width=1.034200213751336]
+	313 -> 313 [label=678 penwidth=5]
+	327 -> 327 [label=829 penwidth=5]
+	327 -> 305 [label=514 penwidth=2.6073619631901837]
+	327 -> 296 [label=562 penwidth=2.7179006560449857]
+	305 -> 305 [label=1537 penwidth=5]
+	305 -> 269 [label=573 penwidth=1.29695885509839]
+	305 -> 330 [label=401 penwidth=2.690288713910761]
+	305 -> 280 [label=470 penwidth=1.4207650273224044]
+	269 -> 327 [label=279 penwidth=3.2380952380952377]
+	269 -> 269 [label=773 penwidth=5]
+	269 -> 257 [label=398 penwidth=1.3530927835051547]
+	257 -> 257 [label=1630 penwidth=5]
+	257 -> 296 [label=907 penwidth=1.474758933635848]
+	257 -> 247 [label=432 penwidth=2.6155717761557176]
+	257 -> 238 [label=250 penwidth=1.5432098765432098]
+	257 -> 318 [label=32 penwidth=3.278688524590164]
+	296 -> 296 [label=1881 penwidth=5]
+	296 -> 330 [label=493 penwidth=1.2461059190031152]
+	296 -> 238 [label=251 penwidth=1.0141987829614605]
+	296 -> 318 [label=39 penwidth=4.861111111111111]
+	271 -> 327 [label=349 penwidth=1.7777777777777777]
+	271 -> 269 [label=324 penwidth=1.6719745222929936]
+	271 -> 271 [label=773 penwidth=5]
+	271 -> 238 [label=192 penwidth=2.452316076294278]
+	271 -> 318 [label=27 penwidth=1.8867924528301885]
+	330 -> 330 [label=747 penwidth=5]
+	330 -> 247 [label=242 penwidth=1.0526315789473684]
+	330 -> 238 [label=146 penwidth=5]
+	330 -> 230 [label=366 penwidth=1.692524682651622]
+	330 -> 318 [label=21 penwidth=5]
+	280 -> 280 [label=1130 penwidth=5]
+	280 -> 247 [label=303 penwidth=2.782608695652174]
+	247 -> 305 [label=528 penwidth=1.6617790811339197]
+	247 -> 247 [label=716 penwidth=5]
+	247 -> 230 [label=393 penwidth=1.9815059445178334]
+	247 -> 318 [label=24 penwidth=5]
+	238 -> 313 [label=152 penwidth=1.0033444816053512]
+	238 -> 305 [label=259 penwidth=2.5303643724696356]
+	238 -> 269 [label=121 penwidth=3.289473684210526]
+	238 -> 238 [label=353 penwidth=5]
+	238 -> 230 [label=242 penwidth=2.6030368763557483]
+	230 -> 305 [label=569 penwidth=1.3525698827772767]
+	230 -> 257 [label=618 penwidth=1.0734929810074318]
+	230 -> 271 [label=454 penwidth=3.1578947368421053]
+	230 -> 230 [label=1341 penwidth=5]
+	318 -> 313 [label=19 penwidth=4.166666666666666]
+	318 -> 327 [label=26 penwidth=5]
+	318 -> 305 [label=43 penwidth=1.7857142857142856]
+	318 -> 269 [label=19 penwidth=1.3157894736842104]
+	318 -> 280 [label=14 penwidth=5]
+	318 -> 238 [label=7 penwidth=5]
+	318 -> 230 [label=25 penwidth=3.125]
+	318 -> 318 [label=16 penwidth=5]
 	start [fillcolor=green shape=doublecircle style=filled]
-	start -> a [penwidth=0.1]
+	start -> 313 [penwidth=0.1]
+	start -> 280 [penwidth=0.1]
 	end [fillcolor=red shape=doublecircle style=filled]
-	e -> end [penwidth=0.1]
+	271 -> end [penwidth=0.1]
+	247 -> end [penwidth=0.1]
 }

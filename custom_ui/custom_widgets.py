@@ -1,5 +1,5 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QSpacerItem, QSizePolicy, QWidget, QSlider,QLabel,QVBoxLayout, QHBoxLayout, QFrame, QGraphicsView, QGraphicsScene
+from PyQt5.QtWidgets import QWidget, QSlider, QVBoxLayout, QGraphicsView, QGraphicsScene
 from PyQt5.QtGui import QPixmap, QPainter, QTransform
 
 # A png viewer with zoom feature.
@@ -45,7 +45,6 @@ class PNGViewer(QWidget):
         self.zoom_factor = value / 100.0
         self.view.setTransform(QTransform().scale(self.zoom_factor, self.zoom_factor))
 
-    # change the png
     def setScene(self, filename):
         self.image = QPixmap(filename)
         self.scene.clear()

@@ -1,6 +1,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QComboBox, QHBoxLayout, QPushButton, QTableWidget, QMessageBox, QTableWidgetItem, QWidget, QVBoxLayout
 from PyQt5.QtGui import QColor
+from mining_algorithms.csv_preprocessor import read
 import csv
 
 class ColumnSelectionView(QWidget):
@@ -22,6 +23,7 @@ class ColumnSelectionView(QWidget):
         self.eventIndex = 1
         self.selected_column = 0
         self.selected_algorithm = 0
+        self.filePath = None
 
         # set up table widget
         self.table = QTableWidget(self)
@@ -76,17 +78,19 @@ class ColumnSelectionView(QWidget):
         buttom_layout.addWidget(self.start_import_button)
         top_layout.setSpacing(10)
 
-        # set up layout
-        layout = QVBoxLayout(self)
-        layout.addLayout(top_layout)
-        layout.addWidget(self.table)
-        layout.addLayout(buttom_layout)
+        # set up main_layout
+        main_layout = QVBoxLayout(self)
+        main_layout.addLayout(top_layout)
+        main_layout.addWidget(self.table)
+        main_layout.addLayout(buttom_layout)
 
         # set up spacing and margins
-        layout.setSpacing(0)
-        layout.setContentsMargins(10, 10, 10, 10)
+        main_layout.setSpacing(0)
+        main_layout.setContentsMargins(10, 10, 10, 10)
 
+    # CALL BEFORE INIT
     def load_csv(self, filepath):
+        self.filePath = filepath
         with open(filepath, 'r') as file:
             # use csv.Sniffer() to try to detect the delimiter
             dialect = csv.Sniffer().sniff(file.read(1024))
@@ -108,7 +112,7 @@ class ColumnSelectionView(QWidget):
             
             self.__color_headers()
           
-
+    # CALL BEFORE INIT
     def load_algorithms(self, array):
         for element in array:
             self.algorithm_selector.addItem(element)
@@ -153,15 +157,6 @@ class ColumnSelectionView(QWidget):
             else:
                 self.table.horizontalHeaderItem(i).setBackground(QColor("#ffffff"))
 
-    def clear(self):
-        self.timeLabel = "timestamp"
-        self.caseLabel = "case"
-        self.eventLabel = "event"
-        self.selected_column = 0
-        self.column_selector.clear()
-        self.algorithm_selector.clear()
-        self.table.clear()
-
     def __start_import(self):
         msgBox = QMessageBox()
         msgBox.setText("Time label is "+self.timeLabel+"\n"+"Case label is "+self.caseLabel+"\n"+"Event label is "+self.eventLabel)
@@ -173,5 +168,18 @@ class ColumnSelectionView(QWidget):
         if ret == QMessageBox.Cancel:
             return
         
-        self.parent.start_mine_csv(self.timeLabel, self.caseLabel, self.eventLabel, self.selected_algorithm)
+        cases = read(self.filePath, self.timeLabel, self.caseLabel, self.eventLabel)
+        if not cases:
+            return
+        
+        self.parent.mine_process(cases, self.selected_algorithm)
     
+    def clear(self):
+        self.timeLabel = "timestamp"
+        self.caseLabel = "case"
+        self.eventLabel = "event"
+        self.selected_column = 0
+        self.column_selector.clear()
+        self.algorithm_selector.clear()
+        self.table.clear()
+        self.filePath = None

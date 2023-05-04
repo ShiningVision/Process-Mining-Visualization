@@ -1,12 +1,13 @@
 sys
+os
 csv
 numpy
 pandas
 pydot
 graphviz
 matplotlib.pyplot
+subprocess
 PyQt5.QtCore
 PyQt5.QtWidgets
-PyQtWebEngine
 matplotlib.backends.backend_qt5agg
 matplotlib.figure

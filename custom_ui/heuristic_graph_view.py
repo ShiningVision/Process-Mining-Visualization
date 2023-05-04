@@ -1,8 +1,6 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QSpacerItem, QSizePolicy, QWidget, QSlider,QLabel,QVBoxLayout, QHBoxLayout, QFrame, QGraphicsView, QGraphicsScene
-from PyQt5.QtGui import QPixmap, QPainter, QTransform
+from PyQt5.QtWidgets import QSpacerItem, QSizePolicy, QWidget, QSlider,QLabel,QVBoxLayout, QHBoxLayout, QFrame
 from mining_algorithms.heuristic_mining import HeuristicMining
-from mining_algorithms.csv_preprocessor import read
 from custom_ui.algorithm_view_interface import AlgorithmViewInterface
 from custom_ui.custom_widgets import PNGViewer
 
@@ -29,7 +27,6 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
         slider_frame.setFrameShadow(QFrame.Sunken)
         slider_frame.setMinimumWidth(200)
 
-        # Create the sliders
         slider_layout = QHBoxLayout()
 
         self.freq_slider = QSlider(Qt.Vertical)
@@ -57,29 +54,20 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
         slider_layout.addLayout(freq_slider_layout)
         slider_layout.addLayout(thresh_slider_layout)
 
-        # Create the main layout
-        main_layout = QHBoxLayout(self)
-        main_layout.addWidget(self.graph_widget, stretch=3)
-        main_layout.addWidget(slider_frame, stretch=1)
-
-        # Add the slider layout to the slider frame layout
         slider_frame_layout = QVBoxLayout()
         slider_frame_layout.addWidget(QLabel("Heuristic Mining Modifiers", alignment=Qt.AlignCenter))
         slider_frame_layout.addLayout(slider_layout)
         slider_frame.setLayout(slider_frame_layout)
 
+        # Create the main layout
+        main_layout = QHBoxLayout(self)
+        main_layout.addWidget(self.graph_widget, stretch=3)
+        main_layout.addWidget(slider_frame, stretch=1)
+
         self.setLayout(main_layout)
 
-    #This function is called in main before the graph is shown.
-    def mine(self, filepath, timeLabel, caseLabel, eventLabel):
-        cases = read(filepath, timeLabel, caseLabel, eventLabel)
-        self.Heuristic_Model = HeuristicMining(cases)
-        self.max_frequency = self.Heuristic_Model.get_max_frequency()
-        self.freq_slider.setRange(self.min_frequency,self.max_frequency)
-        self.__mine_and_draw_csv()
-
-    
-    def mine_txt(self, cases):
+    # CALL BEFORE INIT
+    def startMining(self, cases):
         self.Heuristic_Model = HeuristicMining(cases)
         self.max_frequency = self.Heuristic_Model.get_max_frequency()
         self.freq_slider.setRange(self.min_frequency,self.max_frequency)

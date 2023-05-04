@@ -1,4 +1,3 @@
-import networkx as nx
 from graphviz import Digraph
 import numpy as np
 
@@ -9,21 +8,9 @@ class HeuristicMining():
         self.succession_matrix = self.__create_succession_matrix()
         self.dependency_matrix = self.__create_dependency_matrix()
 
-        #graph modifiers
+        # Graph modifiers
         self.edge_thickness_amplifier = 1
         self.max_edge_thickness = 5
-
-    def create_dependency_graph_with_networkx(self, dependency_treshhold, min_frequency):
-        dependency_graph = self.__create_dependency_graph(dependency_treshhold, min_frequency)
-        G = nx.DiGraph()
-        G.add_nodes_from(self.events)
-        edgelist = []
-        for x in range(len(dependency_graph)):
-            for y in range(len(dependency_graph[0])):
-                if(dependency_graph[x][y]!=0):
-                    edgelist.append((self.events[x],self.events[y], {'weight':self.succession_matrix[x][y] }))
-        G.add_edges_from(edgelist)
-        return G
     
     def create_dependency_graph_with_graphviz(self, dependency_treshhold, min_frequency):
         dependency_graph = self.__create_dependency_graph(dependency_treshhold, min_frequency)
@@ -50,12 +37,12 @@ class HeuristicMining():
                             edge_thickness = self.max_edge_thickness
                     graph.edge(str(self.events[i]), str(self.events[j]), penwidth = str(edge_thickness), label = str(int(self.succession_matrix[i][j])))
 
-        #start node
+        #add start node
         graph.node("start", shape='doublecircle', style='filled',fillcolor='green')
         for node in self.__get_start_nodes():
             graph.edge("start", str(node), penwidth = str(0.1) )
 
-        #end node
+        #add end node
         graph.node("end", shape='doublecircle', style='filled',fillcolor='red')
         for node in self.__get_end_nodes():
             graph.edge(str(node), "end", penwidth =str( 0.1) )  

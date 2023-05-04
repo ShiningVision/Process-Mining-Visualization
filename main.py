@@ -25,7 +25,7 @@ class MainWindow(QMainWindow):
         # Add a view widget for the homepage
         self.welcomeView = StartView(self)
 
-        # Add a view widget for html viewer
+        # Add a view widget for html viewer (.dot Editor)
         self.htmlView = HTMLView(self)
 
         # Add a view widget for assigning the necessary column-labels of the csv
@@ -65,7 +65,7 @@ class MainWindow(QMainWindow):
         export_current_image_png = file_menu.addAction("Export png")
         export_current_image_svg = file_menu.addAction("Export svg")
         export_current_image_dot = file_menu.addAction("Export dot")
-        upload_action_mine_csv.triggered.connect(self.mine_csv)
+        upload_action_mine_csv.triggered.connect(self.mine_new_process)
         export_current_image_png.triggered.connect(self.export_current_image_as_png)
         export_current_image_svg.triggered.connect(self.export_current_image_as_svg)
         export_current_image_dot.triggered.connect(self.export_current_image_as_dot)
@@ -76,7 +76,8 @@ class MainWindow(QMainWindow):
         self.show()
 
     # gets called by start_view.py 'create new process' button
-    def mine_csv(self):
+    # opens Column Selection View
+    def mine_new_process(self):
 
         # Open a file dialog to allow users to select a CSV file
         filename, _ = QFileDialog.getOpenFileName(
@@ -87,7 +88,12 @@ class MainWindow(QMainWindow):
             return
 
         self.filepath = filename
-        self.__open_column_selector()
+
+        # Change to Column Selection View
+        self.__reset_canvas()
+        self.columnSelectionView.load_csv(self.filepath)
+        self.columnSelectionView.load_algorithms(self.algorithms)
+        self.mainWidget.setCurrentWidget(self.columnSelectionView)
 
     def export_current_image_as_png(self):
         # if there is no image, warn with a pop up and return.
@@ -174,46 +180,22 @@ class MainWindow(QMainWindow):
     def view_html(self):
         loaded = self.htmlView.load_file()
         if loaded:
+            self.img_generated = True
             self.mainWidget.setCurrentWidget(self.htmlView)
-        
-    # gets called by start_view.py 'load existing process' button
-    def start_mine_txt(self, algorithm = 0):
-        try:
-            index = self.algorithmViews[algorithm]
-        except IndexError:
-            print("ERROR Algorithm with index "+str(algorithm)+" not defined!")
-            return
-        
-        cases = self.__load()
-        if not cases:
-            return
-        
-        self.__reset_canvas()
-        self.algorithmViews[algorithm].mine_txt(cases)
-        self.img_generated = True
-        self.mainWidget.setCurrentWidget(self.algorithmViews[algorithm])
 
-    # gets called by column_selection_view.py
-    def start_mine_csv(self, timeLabel, caseLabel, eventLabel, algorithm = 0):
-        self.__reset_canvas()
+    def mine_process(self, cases, algorithm = 0):
 
         try:
             index = self.algorithmViews[algorithm]
         except IndexError:
-            print("ERROR Algorithm with index "+str(algorithm)+" not defined!")
+            print("main.py: ERROR Algorithm with index "+str(algorithm)+" not defined!")
             return
         
+        self.__reset_canvas()
         self.current_Algorithm = algorithm
-        self.algorithmViews[algorithm].mine(self.filepath, timeLabel, caseLabel, eventLabel)
+        self.algorithmViews[algorithm].startMining(cases)
         self.img_generated = True
         self.mainWidget.setCurrentWidget(self.algorithmViews[algorithm])
-
-    def __open_column_selector(self):
-        self.__reset_canvas()
-        # change central widget
-        self.columnSelectionView.load_csv(self.filepath)
-        self.columnSelectionView.load_algorithms(self.algorithms)
-        self.mainWidget.setCurrentWidget(self.columnSelectionView)
 
     def __reset_canvas(self):
         self.htmlView.clear()
@@ -221,24 +203,6 @@ class MainWindow(QMainWindow):
         self.columnSelectionView.clear()
         for view in self.algorithmViews:
             view.clear()
-
-# loads a saved txt file back into arrays
-    def __load(self):
-        file_path, _ = QFileDialog.getOpenFileName(None, "Select file", "temp/saves/", "Text files (*.txt)")
-
-        # If the user cancels the file dialog, return
-        if not file_path:
-            return
-        
-        if file_path:
-            # Convert the txt content back to array
-            with open(file_path, "r") as f:
-                array = []
-                for line in f:
-                    array.append(line.strip().split())
-            return array
-
-        return
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
