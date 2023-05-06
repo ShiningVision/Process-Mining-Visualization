@@ -9,8 +9,10 @@ class HeuristicMining():
         self.dependency_matrix = self.__create_dependency_matrix()
 
         # Graph modifiers
-        self.edge_thickness_amplifier = 1
+        self.edge_thickness_amplifier = 1.5
         self.max_edge_thickness = 5
+        self.max_node_size = 5
+        self.min_node_size = 2
     
     def create_dependency_graph_with_graphviz(self, dependency_treshhold, min_frequency):
         dependency_graph = self.__create_dependency_graph(dependency_treshhold, min_frequency)
@@ -22,7 +24,7 @@ class HeuristicMining():
         max_freq= self.get_max_frequency()
         for node in self.events:
             node_freq = self.appearence_frequency.get(node)
-            w = 1 + (node_freq/max_freq)
+            w = self.min_node_size + (node_freq/max_freq)*(self.max_node_size-self.min_node_size)
             h = w/2
             graph.node(str(node), label = str(node)+"\n"+str(node_freq),width = str(w), height = str(h))
 

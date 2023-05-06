@@ -75,8 +75,8 @@ class ColumnSelectionView(QWidget):
 
         # a return button for cancellation
         self.return_button = QPushButton('Back')
-        self.start_import_button.setFixedSize(80, 40)
-        self.start_import_button.clicked.connect(self.__return_to_menu)
+        self.return_button.setFixedSize(80, 40)
+        self.return_button.clicked.connect(self.__return_to_menu)
 
         # set up selector and import button layout
         buttom_layout = QHBoxLayout()
