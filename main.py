@@ -2,8 +2,8 @@
 
 import sys
 import os
-from PyQt5.QtCore import QDir, QFile
-from PyQt5.QtWidgets import QStyleFactory, QApplication, QMainWindow, QStackedWidget, QMessageBox, QFileDialog
+from PyQt5.QtCore import QDir, QFile, QTimer
+from PyQt5.QtWidgets import QLabel, QStyleFactory, QApplication, QMainWindow, QStackedWidget, QMessageBox, QFileDialog
 from custom_ui.column_selection_view import ColumnSelectionView
 from custom_ui.heuristic_graph_view import HeuristicGraphView
 from custom_ui.start_view import StartView
@@ -72,6 +72,9 @@ class MainWindow(QMainWindow):
         export.triggered.connect(self.export)
         edit_dot.triggered.connect(self.view_html)
 
+        #create a status Bar to display quick notifications
+        self.statusBar()
+
         # Set the window title and show the window
         self.setWindowTitle("Graph Viewer")
         self.show()
@@ -122,7 +125,11 @@ class MainWindow(QMainWindow):
     def switchView(self, view):
         self.mainWidget.setCurrentWidget(view)
 
-    def mine_process(self, cases, algorithm = 0):
+    def switchToStart(self):
+        self.mainWidget.setCurrentWidget(self.welcomeView)
+        self.__reset_canvas()
+
+    def mine_process(self, filepath, cases, algorithm = 0):
 
         try:
             index = self.algorithmViews[algorithm]
@@ -132,9 +139,30 @@ class MainWindow(QMainWindow):
         
         self.__reset_canvas()
         self.current_Algorithm = algorithm
-        self.algorithmViews[algorithm].startMining(cases)
+        self.algorithmViews[algorithm].startMining(filepath, cases)
         self.img_generated = True
         self.mainWidget.setCurrentWidget(self.algorithmViews[algorithm])
+    
+    # shows a quick status update/warning
+    def show_message(self, message):
+        duration = 3000
+        # create a QLabel widget and set its text
+        label = QLabel(message, self)
+
+        # set the label's properties (background color, text color, etc.)
+        label.setAutoFillBackground(True)
+        label.setStyleSheet('background-color: #ffff99; color: #333333; padding: 5px; border-radius: 3px;')
+
+        # add the label to the status bar
+        self.statusBar().addWidget(label)
+
+        # create a timer to hide the label after the specified duration
+        timer = QTimer(self)
+        timer.timeout.connect(lambda: self.__msg_timeout(label)) # use a lambda function to delete the label
+        timer.start(duration)
+
+    def __msg_timeout(self, label):
+        self.statusBar().removeWidget(label)
 
     def __reset_canvas(self):
         self.htmlView.clear()

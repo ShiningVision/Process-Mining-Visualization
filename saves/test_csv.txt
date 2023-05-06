@@ -1,40 +1,40 @@
-a e 
-a e 
-a e 
-a e 
-a e 
-a b c e 
-a b c e 
-a b c e 
-a b c e 
-a b c e 
-a b c e 
-a b c e 
-a b c e 
-a b c e 
-a b c e 
-a c b e 
-a c b e 
-a c b e 
-a c b e 
-a c b e 
-a c b e 
-a c b e 
-a c b e 
-a c b e 
-a c b e 
-a b e 
-a c e 
-a d e 
-a d e 
-a d e 
-a d e 
-a d e 
-a d e 
-a d e 
-a d e 
-a d e 
-a d e 
-a d d e 
-a d d e 
-a d d d e 
+a,e
+a,e
+a,e
+a,e
+a,e
+a,b,c,e
+a,b,c,e
+a,b,c,e
+a,b,c,e
+a,b,c,e
+a,b,c,e
+a,b,c,e
+a,b,c,e
+a,b,c,e
+a,b,c,e
+a,c,b,e
+a,c,b,e
+a,c,b,e
+a,c,b,e
+a,c,b,e
+a,c,b,e
+a,c,b,e
+a,c,b,e
+a,c,b,e
+a,c,b,e
+a,b,e
+a,c,e
+a,d,e
+a,d,e
+a,d,e
+a,d,e
+a,d,e
+a,d,e
+a,d,e
+a,d,e
+a,d,e
+a,d,e
+a,d,d,e
+a,d,d,e
+a,d,d,d,e

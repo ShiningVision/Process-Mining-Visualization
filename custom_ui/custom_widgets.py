@@ -1,5 +1,5 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QSlider, QVBoxLayout, QGraphicsView, QGraphicsScene
+from PyQt5.QtWidgets import QWidget, QSlider, QVBoxLayout, QGraphicsView, QGraphicsScene, QComboBox
 from PyQt5.QtGui import QPixmap, QPainter, QTransform
 
 # A png viewer with zoom feature.
@@ -53,3 +53,9 @@ class PNGViewer(QWidget):
 
     def clear(self):
         self.scene.clear()
+
+class CustomQComboBox(QComboBox):
+    def __init__(self):
+        super().__init__()
+        self.setStyleSheet("background-color: #FFFFFF; color: #333333")
+        self.setFixedSize(120, 20)

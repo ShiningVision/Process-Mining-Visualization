@@ -1,8 +1,9 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QSpacerItem, QSizePolicy, QWidget, QSlider,QLabel,QVBoxLayout, QHBoxLayout, QFrame
+from PyQt5.QtWidgets import QSpacerItem, QSizePolicy,QPushButton, QWidget, QSlider,QLabel,QVBoxLayout, QHBoxLayout, QFrame
 from mining_algorithms.heuristic_mining import HeuristicMining
 from custom_ui.algorithm_view_interface import AlgorithmViewInterface
 from custom_ui.custom_widgets import PNGViewer
+from mining_algorithms.csv_preprocessor import save
 
 class HeuristicGraphView(QWidget, AlgorithmViewInterface):
     def __init__(self, parent):
@@ -13,9 +14,10 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
         self.dependency_treshhold = 0.5
         self.min_frequency = 1
         self.max_frequency = 100
-        self.graphviz_graph = None
         self.filepath = 'temp/graph_viz'
-
+        self.graphviz_graph = None
+        self.filename = None
+        self.cases = None
         # used for spacing items in those Q BoxLayouts to center stuff.
         # spacer = QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
@@ -54,9 +56,13 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
         slider_layout.addLayout(freq_slider_layout)
         slider_layout.addLayout(thresh_slider_layout)
 
+        quicksave_button = QPushButton("quicksave")
+        quicksave_button.clicked.connect(self.__save)
+
         slider_frame_layout = QVBoxLayout()
         slider_frame_layout.addWidget(QLabel("Heuristic Mining Modifiers", alignment=Qt.AlignCenter))
         slider_frame_layout.addLayout(slider_layout)
+        slider_frame_layout.addWidget(quicksave_button)
         slider_frame.setLayout(slider_frame_layout)
 
         # Create the main layout
@@ -67,7 +73,9 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
         self.setLayout(main_layout)
 
     # CALL BEFORE INIT
-    def startMining(self, cases):
+    def startMining(self, filename, cases):
+        self.filename = filename
+        self.cases = cases
         self.Heuristic_Model = HeuristicMining(cases)
         self.max_frequency = self.Heuristic_Model.get_max_frequency()
         self.freq_slider.setRange(self.min_frequency,self.max_frequency)
@@ -86,7 +94,11 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
         # Redraw graph when value changes
         self.dependency_treshhold = value/100
         self.__mine_and_draw_csv()
-    
+
+    def __save(self):
+        save(self.filename, self.cases)
+        self.parent.show_message("Project saved")
+
     def __mine_and_draw_csv(self):
 
         '''with graphviz'''

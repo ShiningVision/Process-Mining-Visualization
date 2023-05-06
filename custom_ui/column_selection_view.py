@@ -2,6 +2,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QComboBox, QHBoxLayout, QPushButton, QTableWidget, QMessageBox, QTableWidgetItem, QWidget, QVBoxLayout
 from PyQt5.QtGui import QColor
 from mining_algorithms.csv_preprocessor import read
+from custom_ui.custom_widgets import CustomQComboBox
 import csv
 
 class ColumnSelectionView(QWidget):
@@ -10,9 +11,11 @@ class ColumnSelectionView(QWidget):
         self.parent = parent
 
         #global const variables
-        self.eventColor = "#CDD8E6"
-        self.caseColor = "#BDD8E6"
-        self.timeColor = "#ADD8E6"
+        self.eventColor = "#1E90FF"
+        self.caseColor = "#00BFFF"
+        self.timeColor = "#6495ED"
+        self.textColor = "#333333"
+        self.defaultColor = "#808080"
 
         # assign default labels
         self.timeLabel = "timestamp"
@@ -32,35 +35,33 @@ class ColumnSelectionView(QWidget):
         self.table.horizontalHeader().sectionClicked.connect(self.__column_header_clicked)
 
         # set up column selector combo box
-        self.column_selector = QComboBox(self)
-        self.column_selector.setFixedSize(120, 20)
+        self.column_selector = CustomQComboBox()
         self.column_selector.currentIndexChanged.connect(self.__column_selected)
         
         # set up algorithm selector combo box
-        self.algorithm_selector = QComboBox(self)
-        self.algorithm_selector.setFixedSize(120, 20)
+        self.algorithm_selector = CustomQComboBox()
         self.algorithm_selector.currentIndexChanged.connect(self.__algorithm_selected)
 
         # set up assign column buttons
         self.timeColumn_button = QPushButton('Assign to \nTimestamp', self)
         self.timeColumn_button.setFixedSize(100, 70)
-        self.timeColumn_button.setStyleSheet(f"background-color: {self.timeColor};")
+        self.timeColumn_button.setStyleSheet(f"background-color: {self.timeColor}; color: {self.textColor};")
         self.timeColumn_button.clicked.connect(self.__assign_timeColumn)
 
         self.caseColumn_button = QPushButton('Assign to \nCase', self)
         self.caseColumn_button.setFixedSize(100, 70)
-        self.caseColumn_button.setStyleSheet(f"background-color: {self.caseColor};")
+        self.caseColumn_button.setStyleSheet(f"background-color: {self.caseColor}; color: {self.textColor};")
         self.caseColumn_button.clicked.connect(self.__assign_caseColumn)
 
         self.eventColumn_button = QPushButton('Assign to \nEvent', self)
         self.eventColumn_button.setFixedSize(100, 70)
-        self.eventColumn_button.setStyleSheet(f"background-color: {self.eventColor};")
+        self.eventColumn_button.setStyleSheet(f"background-color: {self.eventColor}; color: {self.textColor};")
         self.eventColumn_button.clicked.connect(self.__assign_eventColumn)
 
         # set up start import button
         self.start_import_button = QPushButton('Start Import', self)
         self.start_import_button.setFixedSize(80, 60)
-        self.start_import_button.setStyleSheet("background-color: red;")
+        self.start_import_button.setStyleSheet(f"background-color: red; color: {self.textColor};")
         self.start_import_button.clicked.connect(self.__start_import)
 
         # set up top layout
@@ -72,8 +73,14 @@ class ColumnSelectionView(QWidget):
         top_layout.setAlignment(Qt.AlignLeft)
         top_layout.setSpacing(10)
 
+        # a return button for cancellation
+        self.return_button = QPushButton('Back')
+        self.start_import_button.setFixedSize(80, 40)
+        self.start_import_button.clicked.connect(self.__return_to_menu)
+
         # set up selector and import button layout
         buttom_layout = QHBoxLayout()
+        buttom_layout.addWidget(self.return_button)
         buttom_layout.addWidget(self.algorithm_selector)
         buttom_layout.addWidget(self.start_import_button)
         top_layout.setSpacing(10)
@@ -155,7 +162,7 @@ class ColumnSelectionView(QWidget):
             elif self.caseIndex == i:
                 self.table.horizontalHeaderItem(i).setBackground(QColor(self.caseColor))
             else:
-                self.table.horizontalHeaderItem(i).setBackground(QColor("#ffffff"))
+                self.table.horizontalHeaderItem(i).setBackground(QColor(self.defaultColor))
 
     def __start_import(self):
         msgBox = QMessageBox()
@@ -172,8 +179,11 @@ class ColumnSelectionView(QWidget):
         if not cases:
             return
         
-        self.parent.mine_process(cases, self.selected_algorithm)
+        self.parent.mine_process(self.filePath, cases, self.selected_algorithm)
     
+    def __return_to_menu(self):
+        self.parent.switchToStart()
+
     def clear(self):
         self.timeLabel = "timestamp"
         self.caseLabel = "case"

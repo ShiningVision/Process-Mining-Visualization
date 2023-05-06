@@ -36,11 +36,16 @@ def read(filename, timeLabel = 'timestamp', caseLabel = 'case', eventLabel = 'ev
         else:
             cases[case] = [event]
     
-    # Save the cases, so it can be loaded in future sessions without read() again:
     array = list(cases.values())
+    
+    # Return the list of cases
+    return array
+
+def save(filename, cases):
+    # Save the cases, so it can be loaded in future sessions without read() again:
+    array = cases
 
     name = os.path.splitext(os.path.basename(filename))[0]
-    print(name)
     destination_path = "saves/"
     destination = destination_path + name + ".txt"
 
@@ -48,15 +53,11 @@ def read(filename, timeLabel = 'timestamp', caseLabel = 'case', eventLabel = 'ev
         os.makedirs(os.path.dirname(destination))
 
     with open(destination, "w") as f:
-        for case in array:
-            for event in case:
+        for i, case in enumerate(array):
+            for j, event in enumerate(case):
+                if j > 0:
+                    f.write(",")
                 f.write(str(event))
-                f.write(" ")
-            f.write("\n")
-    
-    # Return the list of cases
-    return array
-
-
-
+            if i < len(array) - 1:
+                f.write("\n")
 
