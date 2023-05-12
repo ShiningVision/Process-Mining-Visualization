@@ -53,9 +53,11 @@ class StartView(QWidget):
             self.algorithm_selector.addItem(element)
 
     def mine_existing_process(self):
-        filepath, cases = self.__load()
-        if not cases:
+        try:
+            filepath, cases = self.__load()
+        except TypeError:
             return
+        
         self.parent.mine_process(filepath, cases, self.selected_algorithm)
 
     def mine_new_process(self):

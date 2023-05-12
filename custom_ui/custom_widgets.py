@@ -1,6 +1,14 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QSlider, QVBoxLayout, QGraphicsView, QGraphicsScene, QComboBox
-from PyQt5.QtGui import QPixmap, QPainter, QTransform
+from PyQt5.QtGui import QPixmap, QPainter, QTransform, QImage
+from networkx.drawing.nx_agraph import graphviz_layout
+from matplotlib.figure import Figure
+import networkx as nx
+import pygraphviz
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+import numpy as np
+
 
 # A png viewer with zoom feature.
 class PNGViewer(QWidget):
@@ -59,3 +67,23 @@ class CustomQComboBox(QComboBox):
         super().__init__()
         self.setStyleSheet("background-color: #FFFFFF; color: #333333")
         self.setFixedSize(120, 20)
+
+class HTMLViewWidget(QWidget):
+    # idea: I generate a dot file with graphviz. I extract the nodes, edges and positions from the dot file.
+    # Might need my own classes for nodes and edges. I generate a networkx graph with my classes. 
+    # I generate a html bokeh file with the networkx graph.
+    # success?
+    def ff():
+        return
+
+class MatplotlibWidget(QWidget):
+    def __init__(self, parent=None):
+        super(MatplotlibWidget, self).__init__(parent)
+        self.canvas = FigureCanvas(plt.figure())
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.canvas)
+        self.setLayout(layout)
+
+    def resizeEvent(self, event):
+        self.canvas.resize(self.size())

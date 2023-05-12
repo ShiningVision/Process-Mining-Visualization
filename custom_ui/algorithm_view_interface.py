@@ -10,8 +10,10 @@ class AlgorithmViewInterface(ABC, metaclass = HybridMeta):
 
     #This method gets called in main before the User interface switches to your View.
     #It should run your algorithm and initiate all variables, so you can show your View.
+    #filename is really just the filename that is used to save the graph later.
+    #cases is the preprocessed data to be used in your algorithm
     @abstractmethod
-    def startMining(self):
+    def startMining(self, filename, cases):
         raise NotImplementedError('users must define startMining() to use this base class')
     
     # a png called graph_viz.png must be created in the temp folder.

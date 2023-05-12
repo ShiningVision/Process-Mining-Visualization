@@ -13,6 +13,9 @@ Required Python libraries are in requirements.txt and can be installed with
 pip install -r requirements.txt
 ```
 
+PyGraphviz
+This package is notoriously challenging to install. Especially on windows. It is required for the experimental dot editor. If you are not using the "edit dot file" option in the File menu. You don't need it.
+
 
 # Usage Interface
 Open a CMD in THIS folder and type 

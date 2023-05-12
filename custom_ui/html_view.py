@@ -16,7 +16,8 @@ class HTMLView(QWidget):
         # Create a QTextEdit widget to display the DOT file as plain text
         self.text_editor = QTextEdit(self)
 
-        self.png_viewer = PNGViewer()
+        self.graph_viewer = PNGViewer()
+        #self.graph_viewer = NetworkXViewer()
 
         self.html_layout = QVBoxLayout()
         self.html_layout.addWidget(QLabel("Experimental .dot editor"))
@@ -25,7 +26,7 @@ class HTMLView(QWidget):
 
         self.main_layout = QHBoxLayout()
         self.main_layout.addLayout(self.html_layout)
-        self.main_layout.addWidget(self.png_viewer)
+        self.main_layout.addWidget(self.graph_viewer)
 
         self.setLayout(self.main_layout)
 
@@ -36,8 +37,9 @@ class HTMLView(QWidget):
             f.write(new_dot_content)
 
         # Regenerate PNG and display it
-        self.__dot_to_png()
-        self.png_viewer.setScene(self.png_path)
+        #self.__dot_to_png()
+        #self.graph_viewer.setScene(self.png_path)
+        self.graph_viewer.setScene(self.filepath)
 
     # CALL BEFORE INIT
     def load_file(self):
@@ -56,7 +58,8 @@ class HTMLView(QWidget):
 
 
         # Show PNG
-        self.png_viewer.setScene(self.png_path)
+        #self.graph_viewer.setScene(self.png_path)
+        self.graph_viewer.setScene(self.filepath)
 
         return 1
     

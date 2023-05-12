@@ -1,5 +1,6 @@
 from graphviz import Digraph
 import numpy as np
+from mining_algorithms.ddcal_clustering import DensityDistributionClusterAlgorithm
 
 class HeuristicMining():
     def __init__(self, log):
@@ -11,7 +12,7 @@ class HeuristicMining():
         # Graph modifiers
         self.edge_thickness_amplifier = 1.5
         self.max_edge_thickness = 5
-        self.max_node_size = 5
+        self.max_node_size = 10
         self.min_node_size = 2
     
     def create_dependency_graph_with_graphviz(self, dependency_treshhold, min_frequency):
@@ -20,13 +21,29 @@ class HeuristicMining():
         # create graph
         graph = Digraph()
 
+        # cluster the node sizes based on frequency
+        cluster = DensityDistributionClusterAlgorithm(list(self.appearence_frequency.values()))
+        freq_sorted = list(cluster.sorted_data)
+        freq_labels_sorted = list(cluster.labels_sorted_data)
+
+
         # add nodes to graph
         max_freq= self.get_max_frequency()
         for node in self.events:
             node_freq = self.appearence_frequency.get(node)
-            w = self.min_node_size + (node_freq/max_freq)*(self.max_node_size-self.min_node_size)
+            # w = self.min_node_size + (node_freq/max_freq)*(self.max_node_size-self.min_node_size)
+            w = freq_labels_sorted[freq_sorted.index(node_freq)] + self.min_node_size
             h = w/2
             graph.node(str(node), label = str(node)+"\n"+str(node_freq),width = str(w), height = str(h))
+
+        # cluster the edge thickness sizes based on frequency
+        edge_frequencies = self.dependency_matrix.flatten()
+        edge_frequencies = edge_frequencies[edge_frequencies >= 0.0]
+        edge_frequencies = np.unique(edge_frequencies)
+        #print(edge_frequencies)
+        cluster = DensityDistributionClusterAlgorithm(edge_frequencies)
+        freq_sorted = list(cluster.sorted_data)
+        freq_labels_sorted = list(cluster.labels_sorted_data)
 
         # add edges to graph
         for i in range(len(self.events)):
@@ -35,10 +52,11 @@ class HeuristicMining():
                     if dependency_treshhold == 0:
                         edge_thickness = 0.1
                     else:
-                        edge_thickness = (self.dependency_matrix[i][j]/dependency_treshhold) * self.edge_thickness_amplifier
+                        #edge_thickness = (self.dependency_matrix[i][j]/dependency_treshhold) * self.edge_thickness_amplifier
+                        edge_thickness = freq_labels_sorted[freq_sorted.index(self.dependency_matrix[i][j])] * self.edge_thickness_amplifier 
 
-                        if(edge_thickness>self.max_edge_thickness):
-                            edge_thickness = self.max_edge_thickness
+                        #if(edge_thickness>self.max_edge_thickness):
+                            #edge_thickness = self.max_edge_thickness
                     graph.edge(str(self.events[i]), str(self.events[j]), penwidth = str(edge_thickness), label = str(int(self.succession_matrix[i][j])))
 
         #add start node
