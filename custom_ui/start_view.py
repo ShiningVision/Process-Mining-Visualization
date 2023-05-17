@@ -47,7 +47,7 @@ class StartView(QWidget):
         layout.addLayout(button_layout)
         self.setLayout(layout)
 
-    # CALL BEFORE INIT
+    # CALL BEFORE USAGE
     def load_algorithms(self, array):
         for element in array:
             self.algorithm_selector.addItem(element)

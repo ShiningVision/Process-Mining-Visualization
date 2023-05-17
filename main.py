@@ -7,9 +7,9 @@ from PyQt5.QtWidgets import QLabel, QStyleFactory, QApplication, QMainWindow, QS
 from custom_ui.column_selection_view import ColumnSelectionView
 from custom_ui.heuristic_graph_view import HeuristicGraphView
 from custom_ui.start_view import StartView
-from custom_ui.html_view import HTMLView
+from custom_ui.dot_editor_view import DotEditorView
+from custom_ui.html_widget import HTMLWidget
 from custom_ui.export_view import ExportView
-
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -26,8 +26,11 @@ class MainWindow(QMainWindow):
         # Add a view widget for the homepage
         self.welcomeView = StartView(self)
 
-        # Add a view widget for html viewer (.dot Editor)
-        self.htmlView = HTMLView(self)
+        # Add a view widget for dot edit viewer (.dot Editor)
+        self.dotEditorView = DotEditorView(self)
+
+        # Add the experimental interactive HTMLView
+        self.htmlView = HTMLWidget(self)
 
         # Export view
         self.exportView = ExportView(self)
@@ -51,6 +54,7 @@ class MainWindow(QMainWindow):
         self.mainWidget = QStackedWidget(self)
         self.mainWidget.addWidget(self.welcomeView)
         self.mainWidget.addWidget(self.columnSelectionView)
+        self.mainWidget.addWidget(self.dotEditorView)
         self.mainWidget.addWidget(self.htmlView)
         self.mainWidget.addWidget(self.exportView)
 
@@ -66,11 +70,14 @@ class MainWindow(QMainWindow):
         # Add a file menu to allow users to upload csv files and so on.
         file_menu = self.menuBar().addMenu("File")
         upload_action_mine_csv = file_menu.addAction("MINE NEW PROCESS FROM CSV")
-        edit_dot = file_menu.addAction("Edit dot file")
-        export = file_menu.addAction("Export")
         upload_action_mine_csv.triggered.connect(self.mine_new_process)
-        export.triggered.connect(self.export)
+        edit_dot = file_menu.addAction("Edit dot file")
         edit_dot.triggered.connect(self.view_html)
+        interactive_graph = file_menu.addAction("Experimental interactive graph view")
+        interactive_graph.triggered.connect(self.switch_to_interactive_mode)
+        export = file_menu.addAction("Export")
+        export.triggered.connect(self.export)
+
 
         #create a status Bar to display quick notifications
         self.statusBar()
@@ -116,10 +123,14 @@ class MainWindow(QMainWindow):
         self.mainWidget.setCurrentWidget(self.exportView)
  
     def view_html(self):
-        loaded = self.htmlView.load_file()
+        loaded = self.dotEditorView.load_file()
         if loaded:
             self.img_generated = True
-            self.mainWidget.setCurrentWidget(self.htmlView)
+            self.mainWidget.setCurrentWidget(self.dotEditorView)
+
+    def switch_to_interactive_mode(self):
+        self.htmlView.start_server()
+        self.mainWidget.setCurrentWidget(self.htmlView)
 
     # used in export_view.py After export the view should return to the algorithm
     def switchView(self, view):
@@ -165,11 +176,17 @@ class MainWindow(QMainWindow):
         self.statusBar().removeWidget(label)
 
     def __reset_canvas(self):
-        self.htmlView.clear()
+        self.dotEditorView.clear()
         self.welcomeView.clear()
         self.columnSelectionView.clear()
+        self.htmlView.clear()
         for view in self.algorithmViews:
             view.clear()
+    
+    # overwrite closeEvent function
+    def closeEvent(self, event):
+        self.htmlView.clear() # It is important to shut down the html server. The rest of this function is not necessary
+        super().closeEvent(event)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

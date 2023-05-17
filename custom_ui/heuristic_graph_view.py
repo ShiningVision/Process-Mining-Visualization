@@ -72,7 +72,7 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
 
         self.setLayout(main_layout)
 
-    # CALL BEFORE INIT
+    # CALL BEFORE USAGE
     def startMining(self, filename, cases):
         self.filename = filename
         self.cases = cases

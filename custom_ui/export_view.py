@@ -35,7 +35,7 @@ class ExportView(QWidget):
 
         self.setLayout(main_layout)
 
-    # CALL BEFORE INIT
+    # CALL BEFORE USAGE
     def load_algorithm(self, algorithmView):
         self.algorithmView = algorithmView
 

@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QWidget, QHBoxLayout, QFileDialog, QPushButton, QVBo
 import subprocess
 from custom_ui.custom_widgets import PNGViewer
 
-class HTMLView(QWidget):
+class DotEditorView(QWidget):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
@@ -41,7 +41,7 @@ class HTMLView(QWidget):
         #self.graph_viewer.setScene(self.png_path)
         self.graph_viewer.setScene(self.filepath)
 
-    # CALL BEFORE INIT
+    # CALL BEFORE USAGE
     def load_file(self):
         # Open DOT file
         self.filepath, _ = QFileDialog.getOpenFileName(None, "Select file", "", "Dot files (*.dot)")

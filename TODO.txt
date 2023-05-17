@@ -3,3 +3,7 @@ Startnode/Endnode not singular --- DONE
 Line Thickness Cap.  --- DONE
 Replace Dock widgets --- DONE
 Make ColumnSelectionView more appealing ---DONE
+Clustering --- DONE
+HTML-Widget for interactive graph --- Decided on Pyhthon Dash with Networkx --- DONE
+Make HTML Widget work ---
+Rename HTML Widget ---

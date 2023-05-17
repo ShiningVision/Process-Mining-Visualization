@@ -1,3 +1,6 @@
+DEPRECATED.
+TODO: Rewrite this
+
 The main start point is main.py.
 
 main.py:
@@ -18,4 +21,4 @@ Therefore a seperate class for the datatype was not necessary.
 create_dependency_graph_with_networkx() --- returns a networkx graph
 create_dependency_graph_with_graphviz() --- returns a graphviz graph
 
-
+https://medium.com/kenlok/how-to-draw-an-interactive-network-graph-using-dash-b6b744f60931

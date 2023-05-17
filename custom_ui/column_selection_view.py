@@ -95,7 +95,7 @@ class ColumnSelectionView(QWidget):
         main_layout.setSpacing(0)
         main_layout.setContentsMargins(10, 10, 10, 10)
 
-    # CALL BEFORE INIT
+    # CALL BEFORE USAGE
     def load_csv(self, filepath):
         self.filePath = filepath
         with open(filepath, 'r') as file:
@@ -119,7 +119,7 @@ class ColumnSelectionView(QWidget):
             
             self.__color_headers()
           
-    # CALL BEFORE INIT
+    # CALL BEFORE USAGE
     def load_algorithms(self, array):
         for element in array:
             self.algorithm_selector.addItem(element)

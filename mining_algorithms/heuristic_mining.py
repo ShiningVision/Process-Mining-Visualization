@@ -26,9 +26,8 @@ class HeuristicMining():
         freq_sorted = list(cluster.sorted_data)
         freq_labels_sorted = list(cluster.labels_sorted_data)
 
-
         # add nodes to graph
-        max_freq= self.get_max_frequency()
+        # max_freq= self.get_max_frequency()
         for node in self.events:
             node_freq = self.appearence_frequency.get(node)
             # w = self.min_node_size + (node_freq/max_freq)*(self.max_node_size-self.min_node_size)
