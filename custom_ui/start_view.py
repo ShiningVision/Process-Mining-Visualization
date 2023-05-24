@@ -61,7 +61,7 @@ class StartView(QWidget):
         self.parent.mine_process(filepath, cases, self.selected_algorithm)
 
     def mine_new_process(self):
-        self.parent.mine_new_process()
+        self.parent.switch_to_column_selection_view()
         
     def __algorithm_selected(self, index):
         self.algorithm_selector.setCurrentIndex(index)

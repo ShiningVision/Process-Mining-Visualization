@@ -24,7 +24,7 @@ class MainWindow(QMainWindow):
         self.current_Algorithm = 0
 
         # Add a view widget for the homepage
-        self.welcomeView = StartView(self)
+        self.startView = StartView(self)
 
         # Add a view widget for dot edit viewer (.dot Editor)
         self.dotEditorView = DotEditorView(self)
@@ -52,7 +52,7 @@ class MainWindow(QMainWindow):
 
         # Create a main widget that is stacked and can change depending on the needs
         self.mainWidget = QStackedWidget(self)
-        self.mainWidget.addWidget(self.welcomeView)
+        self.mainWidget.addWidget(self.startView)
         self.mainWidget.addWidget(self.columnSelectionView)
         self.mainWidget.addWidget(self.dotEditorView)
         self.mainWidget.addWidget(self.htmlView)
@@ -63,20 +63,20 @@ class MainWindow(QMainWindow):
             self.mainWidget.addWidget(view)
         
         # Set welcome page as default
-        self.welcomeView.load_algorithms(self.algorithms)
-        self.mainWidget.setCurrentWidget(self.welcomeView)
+        self.startView.load_algorithms(self.algorithms)
+        self.mainWidget.setCurrentWidget(self.startView)
         self.setCentralWidget(self.mainWidget)
 
         # Add a file menu to allow users to upload csv files and so on.
         file_menu = self.menuBar().addMenu("File")
         upload_action_mine_csv = file_menu.addAction("MINE NEW PROCESS FROM CSV")
-        upload_action_mine_csv.triggered.connect(self.mine_new_process)
+        upload_action_mine_csv.triggered.connect(self.switch_to_column_selection_view)
         edit_dot = file_menu.addAction("Edit dot file")
-        edit_dot.triggered.connect(self.view_html)
+        edit_dot.triggered.connect(self.switch_to_dot_editor)
         interactive_graph = file_menu.addAction("Experimental interactive graph view")
-        interactive_graph.triggered.connect(self.switch_to_interactive_mode)
+        interactive_graph.triggered.connect(self.switch_to_html_view)
         export = file_menu.addAction("Export")
-        export.triggered.connect(self.export)
+        export.triggered.connect(self.switch_to_export_view)
 
 
         #create a status Bar to display quick notifications
@@ -88,7 +88,7 @@ class MainWindow(QMainWindow):
 
     # gets called by start_view.py 'create new process' button
     # opens Column Selection View
-    def mine_new_process(self):
+    def switch_to_column_selection_view(self):
 
         # Open a file dialog to allow users to select a CSV file
         filename, _ = QFileDialog.getOpenFileName(
@@ -106,7 +106,7 @@ class MainWindow(QMainWindow):
         self.columnSelectionView.load_algorithms(self.algorithms)
         self.mainWidget.setCurrentWidget(self.columnSelectionView)
 
-    def export(self):
+    def switch_to_export_view(self):
         if not self.img_generated:
             popup = QMessageBox(self)
             popup.setText("Nothing to export. Please mine a model.")
@@ -122,22 +122,23 @@ class MainWindow(QMainWindow):
         self.exportView.load_algorithm(self.algorithmViews[self.current_Algorithm])
         self.mainWidget.setCurrentWidget(self.exportView)
  
-    def view_html(self):
+    def switch_to_dot_editor(self):
         loaded = self.dotEditorView.load_file()
         if loaded:
             self.img_generated = True
             self.mainWidget.setCurrentWidget(self.dotEditorView)
 
-    def switch_to_interactive_mode(self):
+    def switch_to_html_view(self):
         self.htmlView.start_server()
         self.mainWidget.setCurrentWidget(self.htmlView)
 
     # used in export_view.py After export the view should return to the algorithm
-    def switchView(self, view):
+    def switch_to_alg_view(self, view):
         self.mainWidget.setCurrentWidget(view)
 
-    def switchToStart(self):
-        self.mainWidget.setCurrentWidget(self.welcomeView)
+    # Column Selection View 'Cancel Selection' uses this 
+    def switch_to_start_view(self):
+        self.mainWidget.setCurrentWidget(self.startView)
         self.__reset_canvas()
 
     def mine_process(self, filepath, cases, algorithm = 0):
@@ -155,7 +156,7 @@ class MainWindow(QMainWindow):
         self.mainWidget.setCurrentWidget(self.algorithmViews[algorithm])
     
     # shows a quick status update/warning
-    def show_message(self, message):
+    def show_pop_up_message(self, message):
         duration = 3000
         # create a QLabel widget and set its text
         label = QLabel(message, self)
@@ -177,7 +178,7 @@ class MainWindow(QMainWindow):
 
     def __reset_canvas(self):
         self.dotEditorView.clear()
-        self.welcomeView.clear()
+        self.startView.clear()
         self.columnSelectionView.clear()
         self.htmlView.clear()
         for view in self.algorithmViews:

@@ -4,6 +4,7 @@ from mining_algorithms.heuristic_mining import HeuristicMining
 from custom_ui.algorithm_view_interface import AlgorithmViewInterface
 from custom_ui.custom_widgets import PNGViewer
 from mining_algorithms.csv_preprocessor import save
+import os
 
 class HeuristicGraphView(QWidget, AlgorithmViewInterface):
     def __init__(self, parent):
@@ -18,7 +19,8 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
         self.graphviz_graph = None
         self.filename = None
         self.cases = None
-        # used for spacing items in those Q BoxLayouts to center stuff.
+
+        # can be used for spacing items in those Q BoxLayouts to center stuff.
         # spacer = QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.graph_widget = PNGViewer()
@@ -97,7 +99,8 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
 
     def __save(self):
         save(self.filename, self.cases)
-        self.parent.show_message("Project saved")
+        name = os.path.splitext(os.path.basename(self.filename))[0]
+        self.parent.show_pop_up_message(f"Project saved as {name}")
 
     def __mine_and_draw_csv(self):
 
