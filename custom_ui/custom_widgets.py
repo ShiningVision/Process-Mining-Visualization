@@ -1,13 +1,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QSlider, QVBoxLayout, QGraphicsView, QGraphicsScene, QComboBox,QPushButton, QHBoxLayout,QVBoxLayout
-from PyQt5.QtGui import QPixmap, QPainter, QTransform, QImage
-from networkx.drawing.nx_agraph import graphviz_layout
-from matplotlib.figure import Figure
-import networkx as nx
-import pygraphviz
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-import numpy as np
+from PyQt5.QtGui import QPixmap, QPainter, QTransform
+from custom_ui.algorithm_view_interface import AlgorithmViewInterface
 
 
 # A png viewer with zoom feature.
@@ -68,19 +62,9 @@ class CustomQComboBox(QComboBox):
         self.setStyleSheet("background-color: #FFFFFF; color: #333333")
         self.setFixedSize(120, 20)
 
-class VerticalBoxLayoutWrapper(QWidget):
-    def __init__(self, widget1, widget2):
-        self.topWidget = widget1
-        self.bottomWidget = widget2
-
-        self.layout = QVBoxLayout()
-        self.layout.addWidget(self.topWidget)
-        self.layout.addWidget(self.bottomWidget)
-
-        self.setLayout(self.layout)
-
 class BottomOperationInterfaceLayoutWidget(QWidget):
     def __init__(self, parent):
+        super().__init__()
         # parent should be QMainWindow
         self.parent = parent
         
@@ -126,4 +110,24 @@ class BottomOperationInterfaceLayoutWidget(QWidget):
     def __algorithm_selected(self, index):
         self.algorithm_selector.setCurrentIndex(index)
         self.selected_algorithm = index
-        
+
+class BottomOperationInterfaceWrapper(QWidget):
+    def __init__(self, parent, view, algorithms):
+        super().__init__()
+        # parent should be QMainWindow
+        self.parent = parent
+        self.topWidget = view
+        self.bottomWidget = BottomOperationInterfaceLayoutWidget(parent)
+
+        # There is a QCombobox in the bottom layout that needs labels.
+        self.bottomWidget.load_algorithms(algorithms)
+
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(self.topWidget)
+        self.layout.addWidget(self.bottomWidget)
+
+        self.setLayout(self.layout)
+
+    # God praise this holy method. Enabling all the functions of the View without having to inherit from it.
+    def __getattr__(self, attr):
+        return getattr(self.topWidget, attr)

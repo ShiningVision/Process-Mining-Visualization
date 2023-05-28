@@ -10,6 +10,7 @@ from custom_ui.start_view import StartView
 from custom_ui.dot_editor_view import DotEditorView
 from custom_ui.html_widget import HTMLWidget
 from custom_ui.export_view import ExportView
+from custom_ui.custom_widgets import BottomOperationInterfaceWrapper
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -20,16 +21,13 @@ class MainWindow(QMainWindow):
 
         # global variables with default values
         self.img_generated = False
-        self.filepath = None
         self.current_Algorithm = 0
-
-        # Add a view widget for the homepage
-        self.startView = StartView(self)
-
+        
         # Add a view widget for dot edit viewer (.dot Editor)
         self.dotEditorView = DotEditorView(self)
 
         # Add the experimental interactive HTMLView
+        # IF IT IS DECIDED THIS FUNCTIONALITY IS UNNECESSARY: simply ctrl + f [htmlView] and delete all code involving it.
         self.htmlView = HTMLWidget(self)
 
         # Export view
@@ -38,17 +36,20 @@ class MainWindow(QMainWindow):
         # Add a view widget for assigning the necessary column-labels of the csv
         self.columnSelectionView = ColumnSelectionView(self)
 
-        # Add a view widget for diplaying heuristic graphs
-        self.heuristicGraphView = HeuristicGraphView(self)
-
         # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ADD YOUR ALGORITHM HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         # ADD NEW ALGORITHM NAME IN THIS algorithms ARRAY
-        # Create your algorithm view page like the heuristicGraphView above.
+        # Create your algorithm view page like the heuristicGraphView below.
         # AND THEN append() YOUR ALGORITHMVIEW TO THE algorithmViews ARRAY
         # MAKE SURE THE INDEXING of both arrays match.
         self.algorithms = ["Heuristic Mining"]
         self.algorithmViews = []
+
+        # The BottomOperationInterfaceWrapper adds a bottom layout with 2 buttons
+        self.heuristicGraphView = BottomOperationInterfaceWrapper(self,HeuristicGraphView(self),self.algorithms)
         self.algorithmViews.append(self.heuristicGraphView)
+
+        # Add a view widget for the default view
+        self.startView = BottomOperationInterfaceWrapper(self,StartView(self),self.algorithms)
 
         # Create a main widget that is stacked and can change depending on the needs
         self.mainWidget = QStackedWidget(self)
@@ -63,7 +64,7 @@ class MainWindow(QMainWindow):
             self.mainWidget.addWidget(view)
         
         # Set welcome page as default
-        self.startView.load_algorithms(self.algorithms)
+        #self.startView.load_algorithms(self.algorithms)
         self.mainWidget.setCurrentWidget(self.startView)
         self.setCentralWidget(self.mainWidget)
 
@@ -73,8 +74,8 @@ class MainWindow(QMainWindow):
         upload_action_mine_csv.triggered.connect(self.switch_to_column_selection_view)
         edit_dot = file_menu.addAction("Edit dot file")
         edit_dot.triggered.connect(self.switch_to_dot_editor)
-        interactive_graph = file_menu.addAction("Experimental interactive graph view")
-        interactive_graph.triggered.connect(self.switch_to_html_view)
+        interactive_graph = file_menu.addAction("Experimental interactive graph view")#htmlView
+        interactive_graph.triggered.connect(self.switch_to_html_view)#htmlView
         export = file_menu.addAction("Export")
         export.triggered.connect(self.switch_to_export_view)
 
@@ -98,11 +99,9 @@ class MainWindow(QMainWindow):
         if not filename:
             return
 
-        self.filepath = filename
-
         # Change to Column Selection View
         self.__reset_canvas()
-        self.columnSelectionView.load_csv(self.filepath)
+        self.columnSelectionView.load_csv(filename)
         self.columnSelectionView.load_algorithms(self.algorithms)
         self.mainWidget.setCurrentWidget(self.columnSelectionView)
 
