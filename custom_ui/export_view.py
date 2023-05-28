@@ -16,6 +16,10 @@ class ExportView(QWidget):
 
         self.rightside = QVBoxLayout()
 
+        self.return_button = QPushButton('Back')
+        self.return_button.setFixedSize(80, 40)
+        self.return_button.clicked.connect(self.__return_to_previous_view)
+
         self.selected_format = 0
         self.format_selector = QComboBox(self)
         self.format_selector.setFixedSize(120, 20)
@@ -27,6 +31,7 @@ class ExportView(QWidget):
         self.export_button.setStyleSheet("background-color: rgb(30, 144, 255)")
         self.export_button.clicked.connect(self.__export)
 
+        self.rightside.addWidget(self.return_button)
         self.rightside.addWidget(self.format_selector)
         self.rightside.addWidget(self.export_button)
 
@@ -50,6 +55,9 @@ class ExportView(QWidget):
         self.selected_format = index
         self.format_selector.setCurrentIndex(index)
 
+    def __return_to_previous_view(self):
+        self.parent.switch_to_view(self.algorithmView)
+
     def __export(self):
         if self.selected_format == 0:
             self.export_current_image_as_png()
@@ -62,7 +70,7 @@ class ExportView(QWidget):
             return
         
         #back to the last page
-        self.parent.switch_to_alg_view(self.algorithmView)
+        self.__return_to_previous_view
 
     def export_current_image_as_png(self):
 
@@ -79,7 +87,6 @@ class ExportView(QWidget):
         self.algorithmView.generate_svg()
 
         self.__save_file(file_name)
-
 
     def export_current_image_as_dot(self):
 

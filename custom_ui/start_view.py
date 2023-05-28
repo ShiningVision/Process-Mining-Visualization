@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QComboBox, QFileDialog
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from custom_ui.custom_widgets import CustomQComboBox
 
@@ -22,11 +22,11 @@ class StartView(QWidget):
 
         # Two buttons 'LOAD EXISTING PROCESS' 'MINE NEW PROCESS FROM CSV'
         load_button = QPushButton("LOAD EXISTING PROCESS")
-        load_button.setFixedSize(170, 70)
+        load_button.setFixedSize(200, 70)
         load_button.setStyleSheet("background-color: #00FF7F; color: #333333;")
         load_button.clicked.connect(self.mine_existing_process)
 
-        mine_button = QPushButton("MINE NEW PROCESS FROM CSV")
+        mine_button = QPushButton("MINE NEW PROCESS\nFROM CSV")
         mine_button.setFixedSize(200, 70)
         mine_button.setStyleSheet("background-color: #00BFFF; color: #333333;")
         mine_button.clicked.connect(self.mine_new_process)

@@ -1,5 +1,5 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QSlider, QVBoxLayout, QGraphicsView, QGraphicsScene, QComboBox
+from PyQt5.QtWidgets import QWidget, QSlider, QVBoxLayout, QGraphicsView, QGraphicsScene, QComboBox,QPushButton, QHBoxLayout,QVBoxLayout
 from PyQt5.QtGui import QPixmap, QPainter, QTransform, QImage
 from networkx.drawing.nx_agraph import graphviz_layout
 from matplotlib.figure import Figure
@@ -67,4 +67,63 @@ class CustomQComboBox(QComboBox):
         super().__init__()
         self.setStyleSheet("background-color: #FFFFFF; color: #333333")
         self.setFixedSize(120, 20)
+
+class VerticalBoxLayoutWrapper(QWidget):
+    def __init__(self, widget1, widget2):
+        self.topWidget = widget1
+        self.bottomWidget = widget2
+
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(self.topWidget)
+        self.layout.addWidget(self.bottomWidget)
+
+        self.setLayout(self.layout)
+
+class BottomOperationInterfaceLayoutWidget(QWidget):
+    def __init__(self, parent):
+        # parent should be QMainWindow
+        self.parent = parent
+        
+        # Set up algorithm selector combo box
+        self.selected_algorithm = 0
+        self.algorithm_selector = CustomQComboBox()
+        self.algorithm_selector.currentIndexChanged.connect(self.__algorithm_selected)
+
+        # Two buttons 'LOAD EXISTING PROCESS' 'MINE NEW PROCESS FROM CSV'
+        load_button = QPushButton("LOAD EXISTING PROCESS")
+        load_button.setFixedSize(200, 70)
+        load_button.setStyleSheet("background-color: #00FF7F; color: #333333;")
+        load_button.clicked.connect(self.mine_existing_process)
+
+        mine_button = QPushButton("MINE NEW PROCESS\nFROM CSV")
+        mine_button.setFixedSize(200, 70)
+        mine_button.setStyleSheet("background-color: #00BFFF; color: #333333;")
+        mine_button.clicked.connect(self.mine_new_process)
+
+        # 'LOAD EXISTING PROCESS' needs a drop down menu to its side
+        load_process_layout = QHBoxLayout()
+        load_process_layout.addWidget(load_button)
+        load_process_layout.addWidget(self.algorithm_selector)
+
+        # Wrap together the 2 buttons.
+        button_layout = QHBoxLayout()
+        button_layout.addWidget(mine_button)
+        button_layout.addLayout(load_process_layout)
+
+        self.setLayout(button_layout)
+    
+    # CALL BEFORE USAGE
+    def load_algorithms(self, array):
+        for element in array:
+            self.algorithm_selector.addItem(element)
+
+    def mine_existing_process(self):
+        self.parent.mine_existing_process(self.selected_algorithm)
+
+    def mine_new_process(self):
+        self.parent.switch_to_column_selection_view()
+        
+    def __algorithm_selected(self, index):
+        self.algorithm_selector.setCurrentIndex(index)
+        self.selected_algorithm = index
         

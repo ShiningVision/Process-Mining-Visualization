@@ -1,10 +1,9 @@
-from custom_ui.html_server import ServerThread, HTMLServer
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QFileDialog, QPushButton, QVBoxLayout, QTextEdit, QLabel
+from custom_ui.html_server import HTMLServer
+from PyQt5.QtWidgets import QWidget, QVBoxLayout
 import networkx as nx
-from flask import Flask
-from dash import dcc, html, Dash
+from dash import dcc, html
 from PyQt5.QtWebEngineWidgets import QWebEngineView
-from PyQt5.QtCore import QDir, QFile, QTimer, QUrl
+from PyQt5.QtCore import QUrl
 import plotly.graph_objs as go
 
 
@@ -15,7 +14,8 @@ class HTMLWidget(QWidget):
         self.parent = parent
         self.server = HTMLServer(self)
         self.state = False
-        # global variables
+
+        # default variables
         self.dotFile = "temp/graph_viz.dot"
 
         # Define the widget and its layout
@@ -28,10 +28,21 @@ class HTMLWidget(QWidget):
 
     # CALL BEFORE USAGE
     def start_server(self):
-        self.__draw_graph()
+        if self.state == True:
+            return ''
+        
+        try:
+            self.__draw_graph()
+        except FileNotFoundError:
+            return f'FileNotFoundError: {self.dotFile} does not exist'
+        
         self.server.start_server()
         print('server started')
         self.state = True
+        return ''
+
+    def set_source(self, filepath):
+        self.dotFile = filepath
 
     def clear(self, var=0):
         # var is not used but during testing, the button to trigger this function required a second argument

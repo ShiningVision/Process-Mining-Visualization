@@ -99,6 +99,7 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
 
     def __save(self):
         save(self.filename, self.cases)
+
         name = os.path.splitext(os.path.basename(self.filename))[0]
         self.parent.show_pop_up_message(f"Project saved as {name}")
 
@@ -109,6 +110,7 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
         
         # generate png
         self.graphviz_graph.render(self.filepath,format = 'png')
+        self.graphviz_graph.render(self.filepath,format = 'dot')
         print("heuristic_graph_view: CSV mined")
 
         # Load the image and add it to the QGraphicsScene

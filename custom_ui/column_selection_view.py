@@ -48,16 +48,16 @@ class ColumnSelectionView(QWidget):
         self.timeColumn_button.setStyleSheet(f"background-color: {self.timeColor}; color: {self.textColor};")
         self.timeColumn_button.clicked.connect(self.__assign_timeColumn)
 
-        self.caseColumn_button = QPushButton('Assign to \nCase', self)
-        self.caseColumn_button.setFixedSize(100, 70)
-        self.caseColumn_button.setStyleSheet(f"background-color: {self.caseColor}; color: {self.textColor};")
-        self.caseColumn_button.clicked.connect(self.__assign_caseColumn)
 
         self.eventColumn_button = QPushButton('Assign to \nEvent', self)
         self.eventColumn_button.setFixedSize(100, 70)
         self.eventColumn_button.setStyleSheet(f"background-color: {self.eventColor}; color: {self.textColor};")
         self.eventColumn_button.clicked.connect(self.__assign_eventColumn)
 
+        self.caseColumn_button = QPushButton('Assign to \nCase', self)
+        self.caseColumn_button.setFixedSize(100, 70)
+        self.caseColumn_button.setStyleSheet(f"background-color: {self.caseColor}; color: {self.textColor};")
+        self.caseColumn_button.clicked.connect(self.__assign_caseColumn)
         # set up start import button
         self.start_import_button = QPushButton('Start Import', self)
         self.start_import_button.setFixedSize(80, 60)
@@ -68,8 +68,8 @@ class ColumnSelectionView(QWidget):
         top_layout = QHBoxLayout()
         top_layout.addWidget(self.column_selector)
         top_layout.addWidget(self.timeColumn_button)
-        top_layout.addWidget(self.caseColumn_button)
         top_layout.addWidget(self.eventColumn_button)
+        top_layout.addWidget(self.caseColumn_button)
         top_layout.setAlignment(Qt.AlignLeft)
         top_layout.setSpacing(10)
 

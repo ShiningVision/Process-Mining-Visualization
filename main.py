@@ -129,11 +129,14 @@ class MainWindow(QMainWindow):
             self.mainWidget.setCurrentWidget(self.dotEditorView)
 
     def switch_to_html_view(self):
-        self.htmlView.start_server()
+        errorMessage = self.htmlView.start_server()
+        if errorMessage != '':
+            self.show_pop_up_message(errorMessage)
+            return
         self.mainWidget.setCurrentWidget(self.htmlView)
 
     # used in export_view.py After export the view should return to the algorithm
-    def switch_to_alg_view(self, view):
+    def switch_to_view(self, view):
         self.mainWidget.setCurrentWidget(view)
 
     # Column Selection View 'Cancel Selection' uses this 
@@ -173,12 +176,35 @@ class MainWindow(QMainWindow):
         timer.timeout.connect(lambda: self.__msg_timeout(label)) # use a lambda function to delete the label
         timer.start(duration)
 
+    # used by BottomOperationInterfaceLayoutWidget
+    def mine_existing_process(self, algorithm):
+        try:
+            filepath, cases = self.__load()
+        except TypeError:
+            return
+        
+        self.mine_process(filepath, cases, algorithm)
+
+    def __load(self):
+        file_path, _ = QFileDialog.getOpenFileName(None, "Select file", "saves/", "Text files (*.txt)")
+
+        # If the user cancels the file dialog, return
+        if not file_path:
+            return
+        
+        # Convert the txt content back to array
+        with open(file_path, "r") as f:
+            array = []
+            for line in f:
+                array.append(line.strip().split(','))
+        return file_path, array
+
     def __msg_timeout(self, label):
         self.statusBar().removeWidget(label)
 
     def __reset_canvas(self):
         self.dotEditorView.clear()
-        self.startView.clear()
+        #self.startView.clear()
         self.columnSelectionView.clear()
         self.htmlView.clear()
         for view in self.algorithmViews:
