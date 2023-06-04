@@ -1,10 +1,13 @@
-from custom_ui.html_server import HTMLServer
+from custom_ui.server_thread import ServerThread
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
 import networkx as nx
 from dash import dcc, html
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtCore import QUrl
 import plotly.graph_objs as go
+from flask import Flask
+from dash import html, Dash
+from dash.dependencies import Input, Output
 
 
 class HTMLWidget(QWidget):
@@ -12,7 +15,7 @@ class HTMLWidget(QWidget):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
-        self.server = HTMLServer(self)
+
         self.state = False
 
         # default variables
@@ -20,7 +23,6 @@ class HTMLWidget(QWidget):
 
         # Define the widget and its layout
         self.browser = QWebEngineView()
-        self.browser.setUrl(QUrl("http://127.0.0.1:5000"))
         self.main_layout = QVBoxLayout()
         self.main_layout.addWidget(self.browser)
         self.setLayout(self.main_layout)
@@ -30,32 +32,42 @@ class HTMLWidget(QWidget):
     def start_server(self):
         if self.state == True:
             return ''
+        self.server = HTMLServer(self)
+        self.url = self.server.getURL()
+        self.browser.setUrl(QUrl(self.url))
         
-        try:
-            self.__draw_graph()
-        except FileNotFoundError:
-            return f'FileNotFoundError: {self.dotFile} does not exist'
+        status = self.reload()
         
         self.server.start_server()
         print('server started')
         self.state = True
+        return status
+    
+    def reload(self):
+        try:
+            self.__draw_graph()
+        except FileNotFoundError:
+            return f'FileNotFoundError: {self.dotFile} does not exist'
         return ''
-
+    
     def set_source(self, filepath):
         self.dotFile = filepath
 
+    # This clear shuts down the server and should only be used on exit. Because restarting Threads is not possible.
     def clear(self, var=0):
         # var is not used but during testing, the button to trigger this function required a second argument
         if self.state == False:
             return
         print('shutting down server')
         self.server.shutdown_server()
+        self.state = False
     
     # Callback from html. Do something with it.
     def react(self, data):
         print('HTMLWidget: ' + data['points'][0]['text'])
 
     def __draw_graph(self):
+
         # The following code was referenced from:
         # https://medium.com/kenlok/how-to-draw-an-interactive-network-graph-using-dash-b6b744f60931
 
@@ -133,7 +145,7 @@ class HTMLWidget(QWidget):
              layout=go.Layout(
                 title='<br> This is an experimental interactive graph view, that can be build upon and used in future extensions.<br>',
                 titlefont=dict(size=16),
-                dragmode='pan', # this is where the default tool is set. 'pan', 'select',...
+                dragmode='select', # this is where the default tool is set. 'pan', 'select',...
                 showlegend=False,
                 hovermode='closest',
                 margin=dict(b=20,l=5,r=5,t=40),
@@ -159,3 +171,50 @@ class HTMLWidget(QWidget):
                     ])
                 ])
         self.server.change_layout(dash_layout)
+
+class HTMLServer():
+    global flask_app
+    flask_app = Flask('myapp')
+    # App routes defined here
+    global dash_app
+    dash_app = Dash(__name__, server=flask_app)
+
+    def __init__(self, parentWidget):
+        # parent is global, because dash_app callback throws an error if I try to make self a parameter
+        global parent
+        parent = parentWidget
+        global dash_app
+        global flask_app
+
+        # Define the layout of the Dash app
+        dash_app.layout = html.Div([
+            html.H1('Nothing to show')
+        ])
+
+        self.server = ServerThread(flask_app)
+
+    @dash_app.callback(Output('selected-data', 'children'),[Input('Graph','selectedData')])
+    def display_selected_data(selectedData):
+        if not selectedData:
+            return
+        num_of_nodes = len(selectedData['points'])
+        text = [html.P('Num of nodes selected: '+str(num_of_nodes))]
+        #for x in selectedData['points']:
+            #material = int(x['text'].split('<br>')[0][10:])
+            #text.append(html.P(str(material)))
+        global parent
+        parent.react(selectedData)
+        return text
+    
+    def change_layout(self, layout):
+        global dash_app
+        dash_app.layout = layout
+
+    def getURL(self):
+        return self.server.getURL()
+    
+    def start_server(self):
+        self.server.start()
+    
+    def shutdown_server(self):
+        self.server.shutdown()

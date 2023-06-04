@@ -59,12 +59,12 @@ class HeuristicMining():
                     graph.edge(str(self.events[i]), str(self.events[j]), penwidth = str(edge_thickness), label = str(int(self.succession_matrix[i][j])))
 
         #add start node
-        graph.node("start", shape='doublecircle', style='filled',fillcolor='green')
+        graph.node("start", label = "start", shape='doublecircle', style='filled',fillcolor='green')
         for node in self.__get_start_nodes():
             graph.edge("start", str(node), penwidth = str(0.1) )
 
         #add end node
-        graph.node("end", shape='doublecircle', style='filled',fillcolor='red')
+        graph.node("end", label = "end", shape='doublecircle', style='filled',fillcolor='red')
         for node in self.__get_end_nodes():
             graph.edge(str(node), "end", penwidth =str( 0.1) )  
 

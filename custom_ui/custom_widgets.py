@@ -1,7 +1,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QSlider, QVBoxLayout, QGraphicsView, QGraphicsScene, QComboBox,QPushButton, QHBoxLayout,QVBoxLayout
 from PyQt5.QtGui import QPixmap, QPainter, QTransform
-from custom_ui.algorithm_view_interface import AlgorithmViewInterface
+
 
 
 # A png viewer with zoom feature.

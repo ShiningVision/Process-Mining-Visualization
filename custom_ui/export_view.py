@@ -74,7 +74,9 @@ class ExportView(QWidget):
 
     def export_current_image_as_png(self):
 
+        #This is the name the graphviz library saves its png as by default.
         file_name = 'graph_viz.png'
+
         # Current algorithm should generate a svg in temp now.
         self.algorithmView.generate_png()
 
@@ -82,6 +84,7 @@ class ExportView(QWidget):
 
     def export_current_image_as_svg(self):
 
+        #This is the name the graphviz library saves its svg as by default.
         file_name = 'graph_viz.svg'
         # Current algorithm should generate a svg in temp now.
         self.algorithmView.generate_svg()
@@ -90,6 +93,7 @@ class ExportView(QWidget):
 
     def export_current_image_as_dot(self):
 
+        #This is the name the graphviz library saves its dot as by default.
         file_name = 'graph_viz.dot'
         # Current algorithm should generate a svg in temp now.
         self.algorithmView.generate_dot()
@@ -99,12 +103,11 @@ class ExportView(QWidget):
     def __save_file(self, file_name):
         # Open a file dialog to allow users to select a folder
         source_folder = QDir.currentPath() + '/temp'
-        destination_folder = QFileDialog.getExistingDirectory(
-            self, "Select a folder", QDir.currentPath())
-        
+        filename = QFileDialog.getSaveFileName(
+            self, "Save File", file_name)
         # Copy the file from the source folder to the destination folder
         source_file_path = os.path.join(source_folder, file_name)
-        destination_file_path = os.path.join(destination_folder, file_name)
+        destination_file_path = filename[0]#os.path.join(destination_folder, file_name)
         if QFile.exists(destination_file_path):
             QFile.remove(destination_file_path)
         QFile.copy(source_file_path, destination_file_path)

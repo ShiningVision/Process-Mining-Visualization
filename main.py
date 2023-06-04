@@ -2,15 +2,17 @@
 
 import sys
 import os
-from PyQt5.QtCore import QDir, QFile, QTimer
+from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QLabel, QStyleFactory, QApplication, QMainWindow, QStackedWidget, QMessageBox, QFileDialog
 from custom_ui.column_selection_view import ColumnSelectionView
 from custom_ui.heuristic_graph_view import HeuristicGraphView
 from custom_ui.start_view import StartView
 from custom_ui.dot_editor_view import DotEditorView
-from custom_ui.html_widget import HTMLWidget
+from custom_ui.netx_html_view import NetXHTMLView
+from custom_ui.d3_html_view import D3HTMLView
 from custom_ui.export_view import ExportView
 from custom_ui.custom_widgets import BottomOperationInterfaceWrapper
+from mining_algorithms.pickle_save import pickle_save, pickle_load
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -28,8 +30,8 @@ class MainWindow(QMainWindow):
 
         # Add the experimental interactive HTMLView
         # IF IT IS DECIDED THIS FUNCTIONALITY IS UNNECESSARY: simply ctrl + f [htmlView] and delete all code involving it.
-        self.htmlView = HTMLWidget(self)
-
+        self.htmlView = NetXHTMLView(self)
+        self.htmlView2 = D3HTMLView(self)
         # Export view
         self.exportView = ExportView(self)
 
@@ -57,6 +59,7 @@ class MainWindow(QMainWindow):
         self.mainWidget.addWidget(self.columnSelectionView)
         self.mainWidget.addWidget(self.dotEditorView)
         self.mainWidget.addWidget(self.htmlView)
+        self.mainWidget.addWidget(self.htmlView2)
         self.mainWidget.addWidget(self.exportView)
 
         # Add all the algorithm views
@@ -74,8 +77,10 @@ class MainWindow(QMainWindow):
         upload_action_mine_csv.triggered.connect(self.switch_to_column_selection_view)
         edit_dot = file_menu.addAction("Edit dot file")
         edit_dot.triggered.connect(self.switch_to_dot_editor)
-        interactive_graph = file_menu.addAction("Experimental interactive graph view")#htmlView
-        interactive_graph.triggered.connect(self.switch_to_html_view)#htmlView
+        netXGraph = file_menu.addAction("Experimental networkX interactive graph view")#htmlView
+        netXGraph.triggered.connect(self.switch_to_html_view)#htmlView
+        d3Graph = file_menu.addAction("Experimental d3-graphviz interactive graph view")#htmlView2
+        d3Graph.triggered.connect(self.switch_to_html_view2)#htmlView2
         export = file_menu.addAction("Export")
         export.triggered.connect(self.switch_to_export_view)
 
@@ -130,9 +135,18 @@ class MainWindow(QMainWindow):
     def switch_to_html_view(self):
         errorMessage = self.htmlView.start_server()
         if errorMessage != '':
+            print("HTMLView has encountered an error.")
             self.show_pop_up_message(errorMessage)
             return
         self.mainWidget.setCurrentWidget(self.htmlView)
+
+    def switch_to_html_view2(self):
+        errorMessage = self.htmlView2.start_server()
+        if errorMessage != '':
+            print("HTMLView has encountered an error.")
+            self.show_pop_up_message(errorMessage)
+            return
+        self.mainWidget.setCurrentWidget(self.htmlView2)
 
     # used in export_view.py After export the view should return to the algorithm
     def switch_to_view(self, view):
@@ -177,20 +191,23 @@ class MainWindow(QMainWindow):
 
     # used by BottomOperationInterfaceLayoutWidget
     def mine_existing_process(self, algorithm):
+        #algorithm is an index
+        save_folder = 'saves/'+str(algorithm)+'/'
         try:
-            filepath, cases = self.__load()
+            filepath, cases = self.__load(save_folder)
         except TypeError:
             return
         
         self.mine_process(filepath, cases, algorithm)
 
-    def __load(self):
-        file_path, _ = QFileDialog.getOpenFileName(None, "Select file", "saves/", "Text files (*.txt)")
-
+    def __load(self, savefolder):
+        file_path, _ = QFileDialog.getOpenFileName(None, "Select file", 'saves/', "Text files (*.txt)")
+        #file_path, _ = QFileDialog.getOpenFileName(None, "Select file", savefolder, "Pickle files (*.pickle)")
         # If the user cancels the file dialog, return
         if not file_path:
             return
         
+        #return file_path, pickle_load(file_path)
         # Convert the txt content back to array
         with open(file_path, "r") as f:
             array = []
@@ -206,12 +223,14 @@ class MainWindow(QMainWindow):
         #self.startView.clear()
         self.columnSelectionView.clear()
         self.htmlView.clear()
+        self.htmlView2.clear()
         for view in self.algorithmViews:
             view.clear()
     
     # overwrite closeEvent function
     def closeEvent(self, event):
-        self.htmlView.clear() # It is important to shut down the html server. The rest of this function is not necessary
+        self.htmlView.clear() # It is important to shut down the html server.
+        self.htmlView2.clear()
         super().closeEvent(event)
 
 if __name__ == "__main__":
