@@ -8,16 +8,20 @@ class HeuristicMining():
         self.events, self.appearence_frequency = self.__filter_out_all_events()
         self.succession_matrix = self.__create_succession_matrix()
         self.dependency_matrix = self.__create_dependency_matrix()
+        
 
         # Graph modifiers
         self.edge_thickness_amplifier = 1.5
         self.max_edge_thickness = 5
         self.max_node_size = 10
         self.min_node_size = 2
+        self.min_frequency = 1
+        self.dependency_threshold = 0.5
     
-    def create_dependency_graph_with_graphviz(self, dependency_treshhold, min_frequency):
-        dependency_graph = self.__create_dependency_graph(dependency_treshhold, min_frequency)
-        
+    def create_dependency_graph_with_graphviz(self, dependency_threshold, min_frequency):
+        dependency_graph = self.__create_dependency_graph(dependency_threshold, min_frequency)
+        self.dependency_threshold = dependency_threshold
+        self.min_frequency = min_frequency
         # create graph
         graph = Digraph()
 
@@ -48,7 +52,7 @@ class HeuristicMining():
         for i in range(len(self.events)):
             for j in range(len(self.events)):
                 if dependency_graph[i][j] == 1.:
-                    if dependency_treshhold == 0:
+                    if dependency_threshold == 0:
                         edge_thickness = 0.1
                     else:
                         #edge_thickness = (self.dependency_matrix[i][j]/dependency_treshhold) * self.edge_thickness_amplifier
@@ -77,6 +81,12 @@ class HeuristicMining():
                 max_freq= value
         return max_freq
     
+    def get_min_freq(self):
+        return self.min_frequency
+    
+    def get_threshold(self):
+        return self.dependency_threshold
+
     def __filter_out_all_events(self):
         dic = {}
         for trace in self.log:

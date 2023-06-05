@@ -1,70 +1,24 @@
 digraph {
-	313 [label="313
-4756" height=2.5 width=5.0]
-	327 [label="327
-4956" height=3.0 width=6.0]
-	305 [label="305
-7407" height=4.0 width=8.0]
-	269 [label="269
-4298" height=2.0 width=4.0]
-	257 [label="257
-7654" height=4.5 width=9.0]
-	296 [label="296
-8421" height=4.5 width=9.0]
-	271 [label="271
-4956" height=3.0 width=6.0]
-	330 [label="330
-4387" height=2.0 width=4.0]
-	280 [label="280
-5785" height=3.5 width=7.0]
-	247 [label="247
-4431" height=2.5 width=5.0]
-	238 [label="238
-2437" height=1.5 width=3.0]
-	230 [label="230
-6282" height=3.5 width=7.0]
-	318 [label="318
-288" height=1.0 width=2.0]
-	313 -> 313 [label=678 penwidth=10.5]
-	327 -> 327 [label=829 penwidth=10.5]
-	327 -> 305 [label=514 penwidth=4.5]
-	327 -> 296 [label=562 penwidth=6.0]
-	305 -> 305 [label=1537 penwidth=10.5]
-	305 -> 269 [label=573 penwidth=3.0]
-	305 -> 330 [label=401 penwidth=6.0]
-	305 -> 280 [label=470 penwidth=3.0]
-	269 -> 327 [label=279 penwidth=6.0]
-	269 -> 269 [label=773 penwidth=10.5]
-	269 -> 257 [label=398 penwidth=3.0]
-	257 -> 257 [label=1630 penwidth=10.5]
-	257 -> 296 [label=907 penwidth=3.0]
-	257 -> 247 [label=432 penwidth=4.5]
-	257 -> 238 [label=250 penwidth=3.0]
-	296 -> 296 [label=1881 penwidth=10.5]
-	296 -> 330 [label=493 penwidth=3.0]
-	296 -> 238 [label=251 penwidth=3.0]
-	271 -> 327 [label=349 penwidth=4.5]
-	271 -> 269 [label=324 penwidth=3.0]
-	271 -> 271 [label=773 penwidth=10.5]
-	330 -> 330 [label=747 penwidth=10.5]
-	330 -> 247 [label=242 penwidth=3.0]
-	330 -> 230 [label=366 penwidth=3.0]
-	280 -> 280 [label=1130 penwidth=10.5]
-	280 -> 247 [label=303 penwidth=6.0]
-	247 -> 305 [label=528 penwidth=3.0]
-	247 -> 247 [label=716 penwidth=10.5]
-	247 -> 230 [label=393 penwidth=4.5]
-	238 -> 305 [label=259 penwidth=4.5]
-	238 -> 238 [label=353 penwidth=10.5]
-	238 -> 230 [label=242 penwidth=4.5]
-	230 -> 305 [label=569 penwidth=3.0]
-	230 -> 257 [label=618 penwidth=3.0]
-	230 -> 271 [label=454 penwidth=6.0]
-	230 -> 230 [label=1341 penwidth=10.5]
+	a [label="a
+40" height=2.0 width=4.0]
+	e [label="e
+40" height=2.0 width=4.0]
+	b [label="b
+21" height=1.5 width=3.0]
+	c [label="c
+21" height=1.5 width=3.0]
+	d [label="d
+17" height=1.0 width=2.0]
+	a -> e [label=5 penwidth=3.0]
+	a -> b [label=11 penwidth=4.5]
+	a -> c [label=11 penwidth=4.5]
+	a -> d [label=13 penwidth=6.0]
+	b -> e [label=11 penwidth=4.5]
+	c -> e [label=11 penwidth=4.5]
+	d -> e [label=13 penwidth=6.0]
+	d -> d [label=4 penwidth=1.5]
 	start [label=start fillcolor=green shape=doublecircle style=filled]
-	start -> 313 [penwidth=0.1]
-	start -> 280 [penwidth=0.1]
+	start -> a [penwidth=0.1]
 	end [label=end fillcolor=red shape=doublecircle style=filled]
-	271 -> end [penwidth=0.1]
-	247 -> end [penwidth=0.1]
+	e -> end [penwidth=0.1]
 }

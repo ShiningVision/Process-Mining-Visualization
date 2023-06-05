@@ -179,7 +179,7 @@ class ColumnSelectionView(QWidget):
         if not cases:
             return
         
-        self.parent.mine_process(self.filePath, cases, self.selected_algorithm)
+        self.parent.mine_new_process(self.filePath, cases, self.selected_algorithm)
     
     def __return_to_start(self):
         self.parent.switch_to_start_view()

@@ -1,7 +1,6 @@
 # This project was assisted by ChatGPT
 
 import sys
-import os
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QLabel, QStyleFactory, QApplication, QMainWindow, QStackedWidget, QMessageBox, QFileDialog
 from custom_ui.column_selection_view import ColumnSelectionView
@@ -12,7 +11,6 @@ from custom_ui.netx_html_view import NetXHTMLView
 from custom_ui.d3_html_view import D3HTMLView
 from custom_ui.export_view import ExportView
 from custom_ui.custom_widgets import BottomOperationInterfaceWrapper
-from mining_algorithms.pickle_save import pickle_save, pickle_load
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -43,12 +41,15 @@ class MainWindow(QMainWindow):
         # Create your algorithm view page like the heuristicGraphView below.
         # AND THEN append() YOUR ALGORITHMVIEW TO THE algorithmViews ARRAY
         # MAKE SURE THE INDEXING of both arrays match.
-        self.algorithms = ["Heuristic Mining"]
+        self.algorithms = ["Heuristic Mining", "Heuristic Mining 2 (There is only 1 algorithm)"]
         self.algorithmViews = []
 
-        # The BottomOperationInterfaceWrapper adds a bottom layout with 2 buttons
-        self.heuristicGraphView = BottomOperationInterfaceWrapper(self,HeuristicGraphView(self),self.algorithms)
+        # The BottomOperationInterfaceWrapper adds a bottom layout with 2 buttons for mining/loading models.
+        self.heuristicGraphView = BottomOperationInterfaceWrapper(self,HeuristicGraphView(self,'saves/0/'),self.algorithms)
         self.algorithmViews.append(self.heuristicGraphView)
+
+        self.heuristicGraphView2 = BottomOperationInterfaceWrapper(self,HeuristicGraphView(self,'saves/1/'),self.algorithms)
+        self.algorithmViews.append(self.heuristicGraphView2)
 
         # Add a view widget for the default view
         self.startView = BottomOperationInterfaceWrapper(self,StartView(self),self.algorithms)
@@ -67,14 +68,11 @@ class MainWindow(QMainWindow):
             self.mainWidget.addWidget(view)
         
         # Set welcome page as default
-        #self.startView.load_algorithms(self.algorithms)
         self.mainWidget.setCurrentWidget(self.startView)
         self.setCentralWidget(self.mainWidget)
 
         # Add a file menu to allow users to upload csv files and so on.
         file_menu = self.menuBar().addMenu("File")
-        upload_action_mine_csv = file_menu.addAction("MINE NEW PROCESS FROM CSV")
-        upload_action_mine_csv.triggered.connect(self.switch_to_column_selection_view)
         edit_dot = file_menu.addAction("Edit dot file")
         edit_dot.triggered.connect(self.switch_to_dot_editor)
         netXGraph = file_menu.addAction("Experimental networkX interactive graph view")#htmlView
@@ -84,8 +82,7 @@ class MainWindow(QMainWindow):
         export = file_menu.addAction("Export")
         export.triggered.connect(self.switch_to_export_view)
 
-
-        #create a status Bar to display quick notifications
+        # create a status Bar to display quick notifications
         self.statusBar()
 
         # Set the window title and show the window
@@ -98,7 +95,7 @@ class MainWindow(QMainWindow):
 
         # Open a file dialog to allow users to select a CSV file
         filename, _ = QFileDialog.getOpenFileName(
-            self, "Open CSV File", "", "CSV files (*.csv)")
+            self, "Open CSV File", "tests/", "CSV files (*.csv)")
 
         # If the user cancels the file dialog, return
         if not filename:
@@ -157,7 +154,7 @@ class MainWindow(QMainWindow):
         self.mainWidget.setCurrentWidget(self.startView)
         self.__reset_canvas()
 
-    def mine_process(self, filepath, cases, algorithm = 0):
+    def mine_new_process(self, filepath, cases, algorithm = 0):
 
         try:
             index = self.algorithmViews[algorithm]
@@ -170,7 +167,22 @@ class MainWindow(QMainWindow):
         self.algorithmViews[algorithm].startMining(filepath, cases)
         self.img_generated = True
         self.mainWidget.setCurrentWidget(self.algorithmViews[algorithm])
-    
+
+    # used by BottomOperationInterfaceLayoutWidget
+    def mine_existing_process(self, algorithm = 0):
+        try:
+            index = self.algorithmViews[algorithm]
+        except IndexError:
+            print("main.py: ERROR Algorithm with index "+str(algorithm)+" not defined!")
+            return
+        
+        status = self.algorithmViews[algorithm].loadModel()
+        if status == -1:
+            return
+        self.img_generated = True
+        self.current_Algorithm = algorithm
+        self.mainWidget.setCurrentWidget(self.algorithmViews[algorithm])
+
     # shows a quick status update/warning
     def show_pop_up_message(self, message):
         duration = 3000
@@ -188,32 +200,6 @@ class MainWindow(QMainWindow):
         timer = QTimer(self)
         timer.timeout.connect(lambda: self.__msg_timeout(label)) # use a lambda function to delete the label
         timer.start(duration)
-
-    # used by BottomOperationInterfaceLayoutWidget
-    def mine_existing_process(self, algorithm):
-        #algorithm is an index
-        save_folder = 'saves/'+str(algorithm)+'/'
-        try:
-            filepath, cases = self.__load(save_folder)
-        except TypeError:
-            return
-        
-        self.mine_process(filepath, cases, algorithm)
-
-    def __load(self, savefolder):
-        file_path, _ = QFileDialog.getOpenFileName(None, "Select file", 'saves/', "Text files (*.txt)")
-        #file_path, _ = QFileDialog.getOpenFileName(None, "Select file", savefolder, "Pickle files (*.pickle)")
-        # If the user cancels the file dialog, return
-        if not file_path:
-            return
-        
-        #return file_path, pickle_load(file_path)
-        # Convert the txt content back to array
-        with open(file_path, "r") as f:
-            array = []
-            for line in f:
-                array.append(line.strip().split(','))
-        return file_path, array
 
     def __msg_timeout(self, label):
         self.statusBar().removeWidget(label)
