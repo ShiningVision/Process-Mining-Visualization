@@ -41,6 +41,7 @@ def read(filename, timeLabel = 'timestamp', caseLabel = 'case', eventLabel = 'ev
     # Return the list of cases
     return array
 
+# DEPRECATED: now using pickle instead
 def save(filename, cases):
     # Save the cases, so it can be loaded in future sessions without read() again:
     array = cases

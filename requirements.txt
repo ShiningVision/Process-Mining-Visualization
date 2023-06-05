@@ -19,3 +19,4 @@ plotly
 dash
 flask
 dash_interactive_graphviz
+pickle
