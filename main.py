@@ -2,6 +2,7 @@
 
 import sys
 from PyQt5.QtCore import QTimer
+from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QLabel, QStyleFactory, QApplication, QMainWindow, QStackedWidget, QMessageBox, QFileDialog
 from custom_ui.column_selection_view import ColumnSelectionView
 from custom_ui.heuristic_graph_view import HeuristicGraphView
@@ -11,6 +12,7 @@ from custom_ui.netx_html_view import NetXHTMLView
 from custom_ui.d3_html_view import D3HTMLView
 from custom_ui.export_view import ExportView
 from custom_ui.custom_widgets import BottomOperationInterfaceWrapper
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -22,7 +24,7 @@ class MainWindow(QMainWindow):
         # global variables with default values
         self.img_generated = False
         self.current_Algorithm = 0
-        
+
         # Add a view widget for dot edit viewer (.dot Editor)
         self.dotEditorView = DotEditorView(self)
 
@@ -41,18 +43,22 @@ class MainWindow(QMainWindow):
         # Create your algorithm view page like the heuristicGraphView below.
         # AND THEN append() YOUR ALGORITHMVIEW TO THE algorithmViews ARRAY
         # MAKE SURE THE INDEXING of both arrays match.
-        self.algorithms = ["Heuristic Mining", "Heuristic Mining 2 (There is only 1 algorithm)"]
+        self.algorithms = ["Heuristic Mining",
+                           "Heuristic Mining 2 (There is only 1 algorithm)"]
         self.algorithmViews = []
 
         # The BottomOperationInterfaceWrapper adds a bottom layout with 2 buttons for mining/loading models.
-        self.heuristicGraphView = BottomOperationInterfaceWrapper(self,HeuristicGraphView(self,'saves/0/'),self.algorithms)
+        self.heuristicGraphView = BottomOperationInterfaceWrapper(
+            self, HeuristicGraphView(self, 'saves/0/'), self.algorithms)
         self.algorithmViews.append(self.heuristicGraphView)
 
-        self.heuristicGraphView2 = BottomOperationInterfaceWrapper(self,HeuristicGraphView(self,'saves/1/'),self.algorithms)
+        self.heuristicGraphView2 = BottomOperationInterfaceWrapper(
+            self, HeuristicGraphView(self, 'saves/1/'), self.algorithms)
         self.algorithmViews.append(self.heuristicGraphView2)
 
         # Add a view widget for the default view
-        self.startView = BottomOperationInterfaceWrapper(self,StartView(self),self.algorithms)
+        self.startView = BottomOperationInterfaceWrapper(
+            self, StartView(self), self.algorithms)
 
         # Create a main widget that is stacked and can change depending on the needs
         self.mainWidget = QStackedWidget(self)
@@ -66,7 +72,7 @@ class MainWindow(QMainWindow):
         # Add all the algorithm views
         for view in self.algorithmViews:
             self.mainWidget.addWidget(view)
-        
+
         # Set welcome page as default
         self.mainWidget.setCurrentWidget(self.startView)
         self.setCentralWidget(self.mainWidget)
@@ -75,13 +81,15 @@ class MainWindow(QMainWindow):
         file_menu = self.menuBar().addMenu("File")
         edit_dot = file_menu.addAction("Edit dot file")
         edit_dot.triggered.connect(self.switch_to_dot_editor)
-        netXGraph = file_menu.addAction("Experimental networkX interactive graph view")#htmlView
-        netXGraph.triggered.connect(self.switch_to_html_view)#htmlView
-        d3Graph = file_menu.addAction("Experimental d3-graphviz interactive graph view")#htmlView2
-        d3Graph.triggered.connect(self.switch_to_html_view2)#htmlView2
+        netXGraph = file_menu.addAction(
+            "Experimental networkX interactive graph view")  # htmlView
+        netXGraph.triggered.connect(self.switch_to_html_view)  # htmlView
+        d3Graph = file_menu.addAction(
+            "Experimental d3-graphviz interactive graph view")  # htmlView2
+        d3Graph.triggered.connect(self.switch_to_html_view2)  # htmlView2
         export = file_menu.addAction("Export")
         export.triggered.connect(self.switch_to_export_view)
-
+        self.__update_menu_state()
         # create a status Bar to display quick notifications
         self.statusBar()
 
@@ -89,8 +97,13 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Graph Viewer")
         self.show()
 
+    # if there is no image, menu_buttons should not be clickable.
+    def __update_menu_state(self):
+        # Enable or disable the actions based on the state of the variable
+        for action in self.menuBar().actions():
+            action.setEnabled(self.img_generated)
+
     # gets called by start_view.py 'create new process' button
-    # opens Column Selection View
     def switch_to_column_selection_view(self):
 
         # Open a file dialog to allow users to select a CSV file
@@ -119,10 +132,11 @@ class MainWindow(QMainWindow):
             popup.exec_()
 
             return
-        
-        self.exportView.load_algorithm(self.algorithmViews[self.current_Algorithm])
+
+        self.exportView.load_algorithm(
+            self.algorithmViews[self.current_Algorithm])
         self.mainWidget.setCurrentWidget(self.exportView)
- 
+
     def switch_to_dot_editor(self):
         loaded = self.dotEditorView.load_file()
         if loaded:
@@ -135,51 +149,57 @@ class MainWindow(QMainWindow):
             print("HTMLView has encountered an error.")
             self.show_pop_up_message(errorMessage)
             return
+        self.htmlView.load_algorithm(self.algorithmViews[self.current_Algorithm])
         self.mainWidget.setCurrentWidget(self.htmlView)
 
     def switch_to_html_view2(self):
         errorMessage = self.htmlView2.start_server()
         if errorMessage != '':
-            print("HTMLView has encountered an error.")
+            print("HTMLView2 has encountered an error.")
             self.show_pop_up_message(errorMessage)
             return
+        self.htmlView2.load_algorithm(self.algorithmViews[self.current_Algorithm])
         self.mainWidget.setCurrentWidget(self.htmlView2)
 
     # used in export_view.py After export the view should return to the algorithm
     def switch_to_view(self, view):
         self.mainWidget.setCurrentWidget(view)
 
-    # Column Selection View 'Cancel Selection' uses this 
+    # Column Selection View 'Cancel Selection' uses this
     def switch_to_start_view(self):
         self.mainWidget.setCurrentWidget(self.startView)
         self.__reset_canvas()
 
-    def mine_new_process(self, filepath, cases, algorithm = 0):
+    def mine_new_process(self, filepath, cases, algorithm=0):
 
         try:
             index = self.algorithmViews[algorithm]
         except IndexError:
-            print("main.py: ERROR Algorithm with index "+str(algorithm)+" not defined!")
+            print("main.py: ERROR Algorithm with index " +
+                  str(algorithm)+" not defined!")
             return
-        
+
         self.__reset_canvas()
         self.current_Algorithm = algorithm
         self.algorithmViews[algorithm].startMining(filepath, cases)
         self.img_generated = True
+        self.__update_menu_state()
         self.mainWidget.setCurrentWidget(self.algorithmViews[algorithm])
 
     # used by BottomOperationInterfaceLayoutWidget
-    def mine_existing_process(self, algorithm = 0):
+    def mine_existing_process(self, algorithm=0):
         try:
             index = self.algorithmViews[algorithm]
         except IndexError:
-            print("main.py: ERROR Algorithm with index "+str(algorithm)+" not defined!")
+            print("main.py: ERROR Algorithm with index " +
+                  str(algorithm)+" not defined!")
             return
-        
+
         status = self.algorithmViews[algorithm].loadModel()
         if status == -1:
             return
         self.img_generated = True
+        self.__update_menu_state()
         self.current_Algorithm = algorithm
         self.mainWidget.setCurrentWidget(self.algorithmViews[algorithm])
 
@@ -191,14 +211,16 @@ class MainWindow(QMainWindow):
 
         # set the label's properties (background color, text color, etc.)
         label.setAutoFillBackground(True)
-        label.setStyleSheet('background-color: #ffff99; color: #333333; padding: 5px; border-radius: 3px;')
+        label.setStyleSheet(
+            'background-color: #ffff99; color: #333333; padding: 5px; border-radius: 3px;')
 
         # add the label to the status bar
         self.statusBar().addWidget(label)
 
         # create a timer to hide the label after the specified duration
         timer = QTimer(self)
-        timer.timeout.connect(lambda: self.__msg_timeout(label)) # use a lambda function to delete the label
+        # use a lambda function to delete the label
+        timer.timeout.connect(lambda: self.__msg_timeout(label))
         timer.start(duration)
 
     def __msg_timeout(self, label):
@@ -206,21 +228,23 @@ class MainWindow(QMainWindow):
 
     def __reset_canvas(self):
         self.dotEditorView.clear()
-        #self.startView.clear()
+        # self.startView.clear()
         self.columnSelectionView.clear()
         self.htmlView.clear()
         self.htmlView2.clear()
         for view in self.algorithmViews:
             view.clear()
-    
+
     # overwrite closeEvent function
     def closeEvent(self, event):
-        self.htmlView.clear() # It is important to shut down the html server.
+        self.htmlView.clear()  # It is important to shut down the html server.
         self.htmlView2.clear()
         super().closeEvent(event)
 
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    app.setStyle(QStyleFactory.create('Fusion')) # table header coloring won't work on windows style.
+    # table header coloring won't work on windows style.
+    app.setStyle(QStyleFactory.create('Fusion'))
     window = MainWindow()
     sys.exit(app.exec_())

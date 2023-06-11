@@ -3,9 +3,9 @@ from PyQt5.QtWidgets import QSpacerItem, QSizePolicy, QFileDialog, QPushButton, 
 from mining_algorithms.heuristic_mining import HeuristicMining
 from custom_ui.algorithm_view_interface import AlgorithmViewInterface
 from custom_ui.custom_widgets import PNGViewer
-from mining_algorithms.csv_preprocessor import save
 from mining_algorithms.pickle_save import pickle_save, pickle_load
-import os
+from custom_ui.custom_widgets import SaveProjectButton
+from custom_ui.custom_widgets import ExportButton
 
 class HeuristicGraphView(QWidget, AlgorithmViewInterface):
     def __init__(self, parent, saveFolder = "saves/"):
@@ -20,7 +20,7 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
         self.filepath = 'temp/graph_viz' # default working memory path 
         self.Heuristic_Model = None 
         self.graphviz_graph = None # the graphviz object
-        self.filename = None # may or may not be the full path. Use only the basename
+        #self.filename = None # may or may not be the full path. Use only the basename
         self.cases = None
 
         # can be used for spacing items in those Q BoxLayouts to center stuff.
@@ -61,13 +61,13 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
         slider_layout.addLayout(freq_slider_layout)
         slider_layout.addLayout(thresh_slider_layout)
 
-        quicksave_button = QPushButton("quicksave")
-        quicksave_button.clicked.connect(self.__save)
-
+        self.saveProject_button = SaveProjectButton(self.parent,self.saveFolder,self.Heuristic_Model)
+        self.export_button = ExportButton(self.parent)
         slider_frame_layout = QVBoxLayout()
         slider_frame_layout.addWidget(QLabel("Heuristic Mining Modifiers", alignment=Qt.AlignCenter))
         slider_frame_layout.addLayout(slider_layout)
-        slider_frame_layout.addWidget(quicksave_button)
+        slider_frame_layout.addWidget(self.saveProject_button)
+        slider_frame_layout.addWidget(self.export_button)
         slider_frame.setLayout(slider_frame_layout)
 
         # Create the main layout
@@ -79,7 +79,8 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
 
     # CALL BEFORE USAGE (option 1 for mining new models) 
     def startMining(self, filename, cases):
-        self.filename = filename
+        #self.filename = filename
+        self.saveProject_button.load_filename(filename)
         self.Heuristic_Model = HeuristicMining(cases)
         self.max_frequency = self.Heuristic_Model.get_max_frequency()
         self.freq_slider.setRange(1,self.max_frequency)
@@ -95,7 +96,8 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
             print("HeuristicGraphView loadModel(): Error: Something went wrong while loading an existing model.")
             return -1
         
-        self.filename= filename
+        #self.filename= filename
+        self.saveProject_button.load_filename(filename)
         self.Heuristic_Model = model
         self.max_frequency = self.Heuristic_Model.get_max_frequency()
 
@@ -131,28 +133,6 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
         # Redraw graph when value changes
         self.dependency_threshold = value/100
         self.__mine_and_draw_csv()
-
-    def __save(self):
-        # get the basename of the original file
-        basename = os.path.splitext(os.path.basename(self.filename))[0]
-        # create the save folder if it does not exist:
-        if not os.path.exists(self.saveFolder):
-            os.makedirs(self.saveFolder)
-            
-        filename = self.saveFolder + basename
-        file_path, _ = QFileDialog.getSaveFileName(self, "Save File", filename)
-        if not file_path:
-            return
-        
-        # save the model as a pickle datastream
-        status = pickle_save(self.Heuristic_Model, file_path)
-        if status == -1:
-            return -1
-        
-        projectname =  os.path.splitext(os.path.basename(file_path))[0]
-
-        # notify the user that the model has been saved:
-        self.parent.show_pop_up_message(f"Project saved as {projectname}")
 
     def __load(self):
         

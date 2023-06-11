@@ -1,6 +1,8 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QSlider, QVBoxLayout, QGraphicsView, QGraphicsScene, QComboBox,QPushButton, QHBoxLayout,QVBoxLayout
+from PyQt5.QtWidgets import QWidget, QFileDialog, QSlider, QVBoxLayout, QGraphicsView, QGraphicsScene, QComboBox,QPushButton, QHBoxLayout,QVBoxLayout
 from PyQt5.QtGui import QPixmap, QPainter, QTransform
+import os
+from mining_algorithms.pickle_save import pickle_save
 
 
 
@@ -60,7 +62,7 @@ class CustomQComboBox(QComboBox):
     def __init__(self):
         super().__init__()
         self.setStyleSheet("background-color: #FFFFFF; color: #333333")
-        self.setFixedSize(120, 20)
+        self.setFixedSize(150, 20)
 
 class BottomOperationInterfaceLayoutWidget(QWidget):
     def __init__(self, parent):
@@ -75,12 +77,12 @@ class BottomOperationInterfaceLayoutWidget(QWidget):
 
         # Two buttons 'LOAD EXISTING PROCESS' 'MINE NEW PROCESS FROM CSV'
         load_button = QPushButton("LOAD EXISTING PROCESS")
-        load_button.setFixedSize(200, 70)
+        load_button.setFixedSize(200, 40)
         load_button.setStyleSheet("background-color: #00FF7F; color: #333333;")
         load_button.clicked.connect(self.mine_existing_process)
 
         mine_button = QPushButton("MINE NEW PROCESS\nFROM CSV")
-        mine_button.setFixedSize(200, 70)
+        mine_button.setFixedSize(200, 40)
         mine_button.setStyleSheet("background-color: #00BFFF; color: #333333;")
         mine_button.clicked.connect(self.mine_new_process)
 
@@ -91,6 +93,7 @@ class BottomOperationInterfaceLayoutWidget(QWidget):
 
         # Wrap together the 2 buttons.
         button_layout = QHBoxLayout()
+        button_layout.setContentsMargins(0,0,0,0)
         button_layout.addWidget(mine_button)
         button_layout.addLayout(load_process_layout)
 
@@ -131,3 +134,57 @@ class BottomOperationInterfaceWrapper(QWidget):
     # God praise this holy method. Enabling all the functions of the View without having to inherit from it.
     def __getattr__(self, attr):
         return getattr(self.topWidget, attr)
+    
+class SaveProjectButton(QWidget):
+    def __init__(self, parent, saveFolder, model, filename = "graphviz_project", text = "Save Project"):
+        super().__init__()
+        self.parent = parent
+        self.filename = filename
+        self.saveFolder = saveFolder
+        self.text = text
+        self.Mining_Model = model
+        quicksave_button = QPushButton(text)
+        quicksave_button.clicked.connect(self.__save)
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(quicksave_button)
+        self.setLayout(self.layout)
+
+    def load_filename(self, filename):
+        self.filename = filename
+
+    def __save(self):
+        # get the basename of the original file
+        basename = os.path.splitext(os.path.basename(self.filename))[0]
+        # create the save folder if it does not exist:
+        if not os.path.exists(self.saveFolder):
+            os.makedirs(self.saveFolder)
+            
+        filename = self.saveFolder + basename
+        file_path, _ = QFileDialog.getSaveFileName(self, "Save File", filename)
+        if not file_path:
+            return
+        
+        # save the model as a pickle datastream
+        status = pickle_save(self.Mining_Model, file_path)
+        if status == -1:
+            return -1
+        
+        projectname =  os.path.splitext(os.path.basename(file_path))[0]
+
+        # notify the user that the model has been saved:
+        self.parent.show_pop_up_message(f"Project saved as {projectname}")
+
+class ExportButton(QWidget):
+    def __init__(self, parent):
+        super().__init__()
+        self.parent = parent
+        text = "Export as image"
+        button = QPushButton(text)
+        button.clicked.connect(self.__export)
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(button)
+        self.setLayout(self.layout)
+
+    def __export(self):
+        self.parent.switch_to_export_view()
+        

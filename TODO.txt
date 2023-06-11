@@ -7,3 +7,6 @@ Clustering --- DONE
 HTML-Widget for interactive graph --- Decided on Pyhthon Dash with Networkx --- DONE
 Make HTML Widget work --- DONE
 Rename HTML Widget --- DONE
+Test files
+Documentation
+Fresh download testing

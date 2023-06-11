@@ -5,6 +5,8 @@ class D3HTMLView(QWidget):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
+        self.algorithmView = None
+
         main_layout = QVBoxLayout()
         self.html_widget = HTMLWidget(self)
 
@@ -21,8 +23,15 @@ class D3HTMLView(QWidget):
     def start_server(self):
         return self.html_widget.start_server()
     
+    # optional CALL BEFORE USAGE, the back button defaults to startview if not called
+    def load_algorithm(self, algorithmView):
+        self.algorithmView = algorithmView
+
     def clear(self):
         self.html_widget.clear()
             
     def __return_to_previous_view(self):
-        self.parent.switch_to_start_view()
+        if not self.algorithmView:
+            self.parent.switch_to_start_view()
+        else:
+            self.parent.switch_to_view(self.algorithmView)

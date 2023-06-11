@@ -1,6 +1,6 @@
 from PyQt5.QtCore import Qt, QDir, QFile
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QComboBox, QPushButton, QFileDialog
-from custom_ui.custom_widgets import PNGViewer
+from custom_ui.custom_widgets import PNGViewer, CustomQComboBox
 import os
 class ExportView(QWidget):
     def __init__(self, parent):
@@ -21,7 +21,7 @@ class ExportView(QWidget):
         self.return_button.clicked.connect(self.__return_to_previous_view)
 
         self.selected_format = 0
-        self.format_selector = QComboBox(self)
+        self.format_selector = CustomQComboBox()
         self.format_selector.setFixedSize(120, 20)
         self.__load_formats()
         self.format_selector.currentIndexChanged.connect(self.__format_selected)
@@ -68,9 +68,8 @@ class ExportView(QWidget):
         else:
             print("export_view: ERROR Invalid export format selected")
             return
-        
         #back to the last page
-        self.__return_to_previous_view
+        self.__return_to_previous_view()
 
     def export_current_image_as_png(self):
 
