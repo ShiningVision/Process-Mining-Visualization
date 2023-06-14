@@ -239,6 +239,8 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event):
         self.htmlView.clear()  # It is important to shut down the html server.
         self.htmlView2.clear()
+        self.heuristicGraphView.clear()
+        self.heuristicGraphView2.clear()
         super().closeEvent(event)
 
 

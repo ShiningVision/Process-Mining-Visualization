@@ -21,7 +21,7 @@ class D3HTMLView(QWidget):
 
     # CALL BEFORE USAGE
     def start_server(self):
-        return self.html_widget.start_server()
+        return self.html_widget.start_server(8060)
     
     # optional CALL BEFORE USAGE, the back button defaults to startview if not called
     def load_algorithm(self, algorithmView):

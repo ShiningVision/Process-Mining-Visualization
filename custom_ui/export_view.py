@@ -1,5 +1,5 @@
-from PyQt5.QtCore import Qt, QDir, QFile
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QComboBox, QPushButton, QFileDialog
+from PyQt5.QtCore import  QDir, QFile
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog
 from custom_ui.custom_widgets import PNGViewer, CustomQComboBox
 import os
 class ExportView(QWidget):
@@ -41,11 +41,11 @@ class ExportView(QWidget):
         self.setLayout(main_layout)
 
     # CALL BEFORE USAGE
-    def load_algorithm(self, algorithmView):
+    def load_algorithm(self, algorithmView, png_path='temp/graph_viz.png'):
         self.algorithmView = algorithmView
 
         # refresh the scene
-        self.leftside.setScene(self.png_path)
+        self.leftside.setScene(png_path)
 
     def __load_formats(self):
         for element in self.supported_formats:

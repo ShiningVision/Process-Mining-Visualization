@@ -136,13 +136,14 @@ class BottomOperationInterfaceWrapper(QWidget):
         return getattr(self.topWidget, attr)
     
 class SaveProjectButton(QWidget):
-    def __init__(self, parent, saveFolder, model, filename = "graphviz_project", text = "Save Project"):
+    def __init__(self, parent, saveFolder, getModelFunction, filename = "graphviz_project", text = "Save Project"):
         super().__init__()
         self.parent = parent
         self.filename = filename
         self.saveFolder = saveFolder
         self.text = text
-        self.Mining_Model = model
+        self.Mining_Model = None
+        self.getModelFunction = getModelFunction
         quicksave_button = QPushButton(text)
         quicksave_button.clicked.connect(self.__save)
         self.layout = QVBoxLayout()
@@ -153,6 +154,7 @@ class SaveProjectButton(QWidget):
         self.filename = filename
 
     def __save(self):
+        self.Mining_Model = self.getModelFunction()
         # get the basename of the original file
         basename = os.path.splitext(os.path.basename(self.filename))[0]
         # create the save folder if it does not exist:
@@ -162,7 +164,7 @@ class SaveProjectButton(QWidget):
         filename = self.saveFolder + basename
         file_path, _ = QFileDialog.getSaveFileName(self, "Save File", filename)
         if not file_path:
-            return
+            return -1
         
         # save the model as a pickle datastream
         status = pickle_save(self.Mining_Model, file_path)

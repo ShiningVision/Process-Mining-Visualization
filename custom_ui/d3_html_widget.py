@@ -1,8 +1,8 @@
 from custom_ui.server_thread import ServerThread
-from PyQt5.QtWidgets import QWidget, QVBoxLayout
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QMessageBox
 from dash import dcc, html
 from PyQt5.QtWebEngineWidgets import QWebEngineView
-from PyQt5.QtCore import QUrl
+from PyQt5.QtCore import QUrl, pyqtSignal,QObject
 from flask import Flask
 from dash import html, Dash
 from dash.dependencies import Input, Output
@@ -10,7 +10,7 @@ import dash_interactive_graphviz
 
 
 class HTMLWidget(QWidget):
-
+    react_signal = pyqtSignal(str, str)
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
@@ -21,17 +21,19 @@ class HTMLWidget(QWidget):
 
         # Define the widget and its layout
         self.browser = QWebEngineView()
+        self.react_signal.connect(self.react)
         self.main_layout = QVBoxLayout()
         self.main_layout.addWidget(self.browser)
         self.setLayout(self.main_layout)
         
 
     # CALL BEFORE USAGE
-    def start_server(self):
+    def start_server(self, port = 8050):
         if self.state == True:
             return ''
         
-        self.server = HTMLServer(self)
+        self.server = HTMLServer(self, port)
+        self.server.react_signal.connect(self.react)
         self.url = self.server.getURL()
         self.browser.setUrl(QUrl(self.url))
 
@@ -45,16 +47,18 @@ class HTMLWidget(QWidget):
     def reload(self):
         try:
             self.__draw_graph()
+            self.browser.reload()
         except FileNotFoundError:
             return f'FileNotFoundError: {self.dotFile} does not exist'
         return ''
 
+    # if the default path is wrong
     def set_source(self, filepath):
         self.dotFile = filepath
 
     # This clear shuts down the server and should only be used on exit. Because restarting Threads is not possible.
     def clear(self, var=0):
-        # var is not used but during testing, the button to trigger this function required a second argument
+        # var is not used, but during testing the button to trigger this function required a second argument
         if self.state == False:
             return
         print('shutting down server')
@@ -64,6 +68,17 @@ class HTMLWidget(QWidget):
     # Callback from html. Do something with it.
     def react(self, data):
         print('HTMLWidget: ' + str(data))
+        if not data:
+            return
+        self.__show_detail_in_popup(str(data))
+
+    def __show_detail_in_popup(self, data):
+
+        popup = QMessageBox()
+        popup.setText(data)
+        popup.setWindowTitle("Selected Node")
+        popup.setStandardButtons(QMessageBox.Close)
+        popup.exec_()
 
     def __draw_graph(self):
 
@@ -105,56 +120,52 @@ class HTMLWidget(QWidget):
                             ],
                         ),
                     ],
-                    style=dict(display="flex", flexDirection="column"),
+                    style=dict(display="none", flexDirection="column"),
                 ),
             ],
             style=dict(position="absolute", height="100%", width="100%", display="flex"),
         )
+        
         self.server.change_layout(dash_layout)
 
-class HTMLServer():
-    global flask_app
-    flask_app = Flask('myapp')
-    # App routes defined here
-    global dash_app
-    dash_app = Dash(__name__, server=flask_app)
-
-    def __init__(self, parentWidget):
+class HTMLServer(QObject):
+    react_signal = pyqtSignal(object)
+    def __init__(self, parentWidget, port = 8050):
+        super().__init__()
         # parent is global, because dash_app callback throws an error if I try to make self a parameter
-        global parent
-        parent = parentWidget
-        global dash_app
-        global flask_app
+        self.parent = parentWidget
+        self.flask_app = Flask('myapp')
+        self.dash_app = Dash(__name__, server=self.flask_app)
 
         # Define the layout of the Dash app
-        dash_app.layout = html.Div([
+        self.dash_app.layout = html.Div([
             html.H1('Nothing to show')
         ])
 
-        self.server = ServerThread(flask_app, 8050)
+        self.server = ServerThread(self.flask_app, port)
 
-    @dash_app.callback(
-        [Output("gv", "dot_source"), Output("gv", "engine")],
-        [Input("input", "value"), Input("engine", "value")],
-    )
-    def display_output(value, engine):
-        return value, engine
+    def register_callbacks(self):
+        @self.dash_app.callback(
+            [Output("gv", "dot_source"), Output("gv", "engine")],
+            [Input("input", "value"), Input("engine", "value")],
+        )
+        def display_output(value, engine):
+            return value, engine
     
-    @dash_app.callback(Output("selected", "children"), [Input("gv", "selected")])
-    def show_selected(value):
-        global parent
-        parent.react(value)
-        return html.Div(value)
+        @self.dash_app.callback(Output("selected", "children"), [Input("gv", "selected")])
+        def show_selected(value):
+            self.react_signal.emit(value)
+            return html.Div(value)
     
     def change_layout(self, layout):
-        global dash_app
-        dash_app.layout = layout
+        self.dash_app.layout = layout
     
     def getURL(self):
         return self.server.getURL()
     
     def start_server(self):
         self.server.start()
+        self.register_callbacks()
     
     def shutdown_server(self):
         self.server.shutdown()

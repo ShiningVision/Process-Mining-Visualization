@@ -1,8 +1,9 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QSpacerItem, QSizePolicy, QFileDialog, QPushButton, QWidget, QSlider,QLabel,QVBoxLayout, QHBoxLayout, QFrame
+from PyQt5.QtWidgets import QSpacerItem, QSizePolicy, QFileDialog, QWidget, QSlider,QLabel,QVBoxLayout, QHBoxLayout, QFrame
 from mining_algorithms.heuristic_mining import HeuristicMining
 from custom_ui.algorithm_view_interface import AlgorithmViewInterface
 from custom_ui.custom_widgets import PNGViewer
+from custom_ui.d3_html_widget import HTMLWidget
 from mining_algorithms.pickle_save import pickle_save, pickle_load
 from custom_ui.custom_widgets import SaveProjectButton
 from custom_ui.custom_widgets import ExportButton
@@ -11,7 +12,7 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
     def __init__(self, parent, saveFolder = "saves/"):
         super().__init__()
         self.parent = parent
-
+        self.initialized = False
         #modifiers and global variables
         self.dependency_threshold = 0.5
         self.min_frequency = 1
@@ -20,13 +21,12 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
         self.filepath = 'temp/graph_viz' # default working memory path 
         self.Heuristic_Model = None 
         self.graphviz_graph = None # the graphviz object
-        #self.filename = None # may or may not be the full path. Use only the basename
-        self.cases = None
 
-        # can be used for spacing items in those Q BoxLayouts to center stuff.
+        # can be used for spacing items in those Q BoxLayouts to center stuff. I just didn't do it and will forget about it.
         # spacer = QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.graph_widget = PNGViewer()
+        #self.graph_widget = PNGViewer()
+        self.graph_widget = HTMLWidget(parent)
         
         # Create the slider frame
         slider_frame = QFrame()
@@ -61,7 +61,7 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
         slider_layout.addLayout(freq_slider_layout)
         slider_layout.addLayout(thresh_slider_layout)
 
-        self.saveProject_button = SaveProjectButton(self.parent,self.saveFolder,self.Heuristic_Model)
+        self.saveProject_button = SaveProjectButton(self.parent,self.saveFolder,self.getModel)
         self.export_button = ExportButton(self.parent)
         slider_frame_layout = QVBoxLayout()
         slider_frame_layout.addWidget(QLabel("Heuristic Mining Modifiers", alignment=Qt.AlignCenter))
@@ -84,7 +84,9 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
         self.Heuristic_Model = HeuristicMining(cases)
         self.max_frequency = self.Heuristic_Model.get_max_frequency()
         self.freq_slider.setRange(1,self.max_frequency)
-        self.__mine_and_draw_csv()
+        self.graph_widget.start_server()
+        self.initialized=True
+        self.__mine_and_draw()
 
     # CALL BEFORE USAGE (option 2 for mining existing models)
     def loadModel(self):
@@ -109,7 +111,8 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
         self.dependency_threshold = self.Heuristic_Model.get_threshold()
         self.thresh_slider_label.setText(f"Dependency Threshold: {self.dependency_threshold:.2f}")
         
-        # Using setValue triggers valueChanged(). If the function below that, calls a model function,
+        # Using setValue triggers valueChanged(). 
+        # If the function below setValue, calls a model function,
         # it leads to what I can only assume is undefined behaviour.
         # This bug also only occurs on initial loadModel(). 
         # All consequent loadModel function calls work just fine for some reason.
@@ -118,21 +121,35 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
         self.thresh_slider.setValue(int(self.dependency_threshold*100))
         
         self.freq_slider.setRange(1,self.max_frequency)
-        self.__mine_and_draw_csv()
+        self.graph_widget.start_server()
+        self.initialized = True
+        self.__mine_and_draw()
 
+    # this function is given to the Save Project button. It is called whenever we save the model.
+    def getModel(self):
+        return self.Heuristic_Model
+    
     def __freq_slider_changed(self, value):
         # Update the label with the slider value
         self.freq_slider_label.setText(f"Min. Frequency: {value}")
         # Redraw graph when value changes
         self.min_frequency = value
-        self.__mine_and_draw_csv()
+        
+        if not self.initialized:
+            return
+
+        self.__mine_and_draw()
     
     def __thresh_slider_changed(self, value):
         # Update the label with the slider value
         self.thresh_slider_label.setText(f"Dependency Threshold: {value/100:.2f}")
         # Redraw graph when value changes
         self.dependency_threshold = value/100
-        self.__mine_and_draw_csv()
+
+        if not self.initialized:
+            return
+    
+        self.__mine_and_draw()
 
     def __load(self):
         
@@ -140,33 +157,48 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
         # If the user cancels the file dialog, return
         if not file_path:
             return -1, -1
-        
         return file_path, pickle_load(file_path)
 
-    def __mine_and_draw_csv(self):
+    def __mine_and_draw(self):
 
         '''with graphviz'''
         self.graphviz_graph = self.Heuristic_Model.create_dependency_graph_with_graphviz(self.dependency_threshold,self.min_frequency)
         
         # generate png
-        self.graphviz_graph.render(self.filepath,format = 'png')
+        #self.graphviz_graph.render(self.filepath,format = 'png')
         self.graphviz_graph.render(self.filepath,format = 'dot')
         print("heuristic_graph_view: CSV mined")
 
         # Load the image and add it to the QGraphicsScene
-        filename = self.filepath + '.png'
-        self.graph_widget.setScene(filename)
+        #filename = self.filepath + '.png'
+        #self.graph_widget.setScene(filename)
+        filename = self.filepath + '.dot'
+        self.graph_widget.set_source(filename)
+        self.graph_widget.reload()
+
+    def __ensure_graphviz_graph_exists(self):
+        # just to make sure everything works as intended.
+        if not self.graphviz_graph:
+            print("HeuristicGraphView ERROR: graphviz_graph is NONE.")
+            return False
+        return True
 
     def generate_png(self):
-        #the heuristic algorithm loads the png to show on the canvas.
-        #No need to generate it again, if it is already there.
+        if not self.__ensure_graphviz_graph_exists():
+            return
+        self.graphviz_graph.render(self.filepath,format = 'png')
+        print("heuristic_graph_view: PNG generated")
         return
 
     def generate_svg(self):
+        if not self.__ensure_graphviz_graph_exists():
+            return
         self.graphviz_graph.render(self.filepath,format = 'svg')
         print("heuristic_graph_view: SVG generated")
 
     def generate_dot(self):
+        if not self.__ensure_graphviz_graph_exists():
+            return
         self.graphviz_graph.render(self.filepath,format = 'dot')
         print("heuristic_graph_view: DOT generated")
 

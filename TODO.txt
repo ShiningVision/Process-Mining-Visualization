@@ -10,3 +10,5 @@ Rename HTML Widget --- DONE
 Test files
 Documentation
 Fresh download testing
+HTML Widget Port probing for free ports...
+HTML Widget reload bug fix
