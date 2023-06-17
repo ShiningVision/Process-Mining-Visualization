@@ -11,6 +11,7 @@ class ExportView(QWidget):
         self.supported_formats = ['PNG','SVG','DOT']
         main_layout = QHBoxLayout()
         self.leftside = PNGViewer()
+        self.textColor = "#333333"
 
         self.leftside.setScene(self.png_path)
 
@@ -18,6 +19,7 @@ class ExportView(QWidget):
 
         self.return_button = QPushButton('Back')
         self.return_button.setFixedSize(80, 40)
+        self.return_button.setStyleSheet(f"background-color: red; color: {self.textColor}")
         self.return_button.clicked.connect(self.__return_to_previous_view)
 
         self.selected_format = 0
@@ -27,7 +29,7 @@ class ExportView(QWidget):
         self.format_selector.currentIndexChanged.connect(self.__format_selected)
 
         self.export_button = QPushButton("EXPORT")
-        self.export_button.setFixedSize(180, 70)
+        self.export_button.setFixedSize(100, 50)
         self.export_button.setStyleSheet("background-color: rgb(30, 144, 255)")
         self.export_button.clicked.connect(self.__export)
 

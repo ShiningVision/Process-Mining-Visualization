@@ -55,11 +55,8 @@ class HeuristicMining():
                     if dependency_threshold == 0:
                         edge_thickness = 0.1
                     else:
-                        #edge_thickness = (self.dependency_matrix[i][j]/dependency_treshhold) * self.edge_thickness_amplifier
                         edge_thickness = freq_labels_sorted[freq_sorted.index(self.dependency_matrix[i][j])] * self.edge_thickness_amplifier 
 
-                        #if(edge_thickness>self.max_edge_thickness):
-                            #edge_thickness = self.max_edge_thickness
                     graph.edge(str(self.events[i]), str(self.events[j]), penwidth = str(edge_thickness), label = str(int(self.succession_matrix[i][j])))
 
         #add start node

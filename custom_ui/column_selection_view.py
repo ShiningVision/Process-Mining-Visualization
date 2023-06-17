@@ -1,5 +1,5 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QComboBox, QHBoxLayout, QPushButton, QTableWidget, QMessageBox, QTableWidgetItem, QWidget, QVBoxLayout
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QPushButton, QTableWidget, QMessageBox, QTableWidgetItem, QWidget, QVBoxLayout
 from PyQt5.QtGui import QColor
 from mining_algorithms.csv_preprocessor import read
 from custom_ui.custom_widgets import CustomQComboBox
@@ -48,7 +48,6 @@ class ColumnSelectionView(QWidget):
         self.timeColumn_button.setStyleSheet(f"background-color: {self.timeColor}; color: {self.textColor};")
         self.timeColumn_button.clicked.connect(self.__assign_timeColumn)
 
-
         self.eventColumn_button = QPushButton('Assign to \nEvent', self)
         self.eventColumn_button.setFixedSize(100, 70)
         self.eventColumn_button.setStyleSheet(f"background-color: {self.eventColor}; color: {self.textColor};")
@@ -61,7 +60,7 @@ class ColumnSelectionView(QWidget):
         # set up start import button
         self.start_import_button = QPushButton('Start Import', self)
         self.start_import_button.setFixedSize(80, 60)
-        self.start_import_button.setStyleSheet(f"background-color: red; color: {self.textColor};")
+        self.start_import_button.setStyleSheet(f"background-color: lime; color: {self.textColor};")
         self.start_import_button.clicked.connect(self.__start_import)
 
         # set up top layout
@@ -75,6 +74,7 @@ class ColumnSelectionView(QWidget):
 
         # a return button for cancellation
         self.return_button = QPushButton('Back')
+        self.return_button.setStyleSheet(f"background-color: red; color: {self.textColor}")
         self.return_button.setFixedSize(80, 40)
         self.return_button.clicked.connect(self.__return_to_start)
 

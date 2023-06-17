@@ -1,10 +1,9 @@
 from custom_ui.server_thread import ServerThread
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QMessageBox
-from dash import dcc, html
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtCore import QUrl, pyqtSignal,QObject
 from flask import Flask
-from dash import html, Dash
+from dash import dcc, html, Dash
 from dash.dependencies import Input, Output
 import dash_interactive_graphviz
 

@@ -6,11 +6,13 @@ class D3HTMLView(QWidget):
         super().__init__()
         self.parent = parent
         self.algorithmView = None
+        self.textColor = "#333333"
 
         main_layout = QVBoxLayout()
         self.html_widget = HTMLWidget(self)
 
         self.return_button = QPushButton('Back')
+        self.return_button.setStyleSheet(f"background-color: red; color: {self.textColor}")
         self.return_button.setFixedSize(80, 40)
         self.return_button.clicked.connect(self.__return_to_previous_view)
 
