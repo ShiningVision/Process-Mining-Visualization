@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton
-from custom_ui.netx_html_widget import HTMLWidget
+from custom_ui.deprecated_ui.netx_html_widget import HTMLWidget
 
 class NetXHTMLView(QWidget):
     def __init__(self, parent):

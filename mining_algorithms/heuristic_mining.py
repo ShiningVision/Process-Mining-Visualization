@@ -8,7 +8,6 @@ class HeuristicMining():
         self.events, self.appearence_frequency = self.__filter_out_all_events()
         self.succession_matrix = self.__create_succession_matrix()
         self.dependency_matrix = self.__create_dependency_matrix()
-        
 
         # Graph modifiers
         self.edge_thickness_amplifier = 1.5
@@ -22,6 +21,7 @@ class HeuristicMining():
         dependency_graph = self.__create_dependency_graph(dependency_threshold, min_frequency)
         self.dependency_threshold = dependency_threshold
         self.min_frequency = min_frequency
+
         # create graph
         graph = Digraph()
 
@@ -31,7 +31,6 @@ class HeuristicMining():
         freq_labels_sorted = list(cluster.labels_sorted_data)
 
         # add nodes to graph
-        # max_freq= self.get_max_frequency()
         for node in self.events:
             node_freq = self.appearence_frequency.get(node)
             # w = self.min_node_size + (node_freq/max_freq)*(self.max_node_size-self.min_node_size)

@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog
+from PyQt5.QtWidgets import QWidget, QVBoxLayout
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from custom_ui.custom_widgets import CustomQComboBox
 
 class StartView(QWidget):
     def __init__(self, parent):

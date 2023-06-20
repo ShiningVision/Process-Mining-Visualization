@@ -1,0 +1,33 @@
+digraph {
+	a [label="a
+5" height=4.5 width=9.0]
+	b [label="b
+2" height=3.5 width=7.0]
+	c [label="c
+2" height=3.5 width=7.0]
+	d [label="d
+5" height=4.5 width=9.0]
+	e [label="e
+3" height=4.0 width=8.0]
+	f [label="f
+1" height=1.0 width=2.0]
+	g [label="g
+1" height=1.0 width=2.0]
+	h [label="h
+1" height=1.0 width=2.0]
+	a -> b [label=1 penwidth=1.5]
+	a -> c [label=1 penwidth=1.5]
+	a -> e [label=3 penwidth=3.0]
+	b -> d [label=1 penwidth=1.5]
+	c -> d [label=1 penwidth=1.5]
+	e -> f [label=1 penwidth=1.5]
+	e -> g [label=1 penwidth=1.5]
+	e -> h [label=1 penwidth=1.5]
+	f -> d [label=1 penwidth=1.5]
+	g -> d [label=1 penwidth=1.5]
+	h -> d [label=1 penwidth=1.5]
+	start [label=start fillcolor=green shape=doublecircle style=filled]
+	start -> a [penwidth=0.1]
+	end [label=end fillcolor=red shape=doublecircle style=filled]
+	d -> end [penwidth=0.1]
+}

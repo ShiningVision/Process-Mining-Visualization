@@ -1,0 +1,30 @@
+digraph {
+	d [label="d
+4" height=1.5 width=3.0]
+	c [label="c
+4" height=1.5 width=3.0]
+	b [label="b
+5" height=4.5 width=9.0]
+	e [label="e
+4" height=1.5 width=3.0]
+	f [label="f
+5" height=4.5 width=9.0]
+	a [label="a
+3" height=1.0 width=2.0]
+	d -> e [label=1 penwidth=3.0]
+	d -> a [label=1 penwidth=3.0]
+	c -> e [label=1 penwidth=3.0]
+	c -> f [label=1 penwidth=3.0]
+	b -> b [label=1 penwidth=3.0]
+	b -> e [label=1 penwidth=3.0]
+	e -> f [label=4 penwidth=4.5]
+	a -> c [label=1 penwidth=3.0]
+	a -> b [label=1 penwidth=3.0]
+	a -> e [label=1 penwidth=3.0]
+	start [label=start fillcolor=green shape=doublecircle style=filled]
+	start -> d [penwidth=0.1]
+	start -> a [penwidth=0.1]
+	start -> b [penwidth=0.1]
+	end [label=end fillcolor=red shape=doublecircle style=filled]
+	f -> end [penwidth=0.1]
+}
