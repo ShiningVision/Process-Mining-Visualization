@@ -61,17 +61,19 @@ class ExportView(QWidget):
         self.parent.switch_to_view(self.algorithmView)
 
     def __export(self):
+        export_success = False
         if self.selected_format == 0:
-            self.export_current_image_as_png()
+            export_success=self.export_current_image_as_png()
         elif self.selected_format == 1:
-            self.export_current_image_as_svg()
+            export_success=self.export_current_image_as_svg()
         elif self.selected_format == 2:
-            self.export_current_image_as_dot()
+            export_success=self.export_current_image_as_dot()
         else:
             print("export_view: ERROR Invalid export format selected")
             return
         #back to the last page
-        self.__return_to_previous_view()
+        if export_success:
+            self.__return_to_previous_view()
 
     def export_current_image_as_png(self):
 
@@ -81,7 +83,7 @@ class ExportView(QWidget):
         # Current algorithm should generate a svg in temp now.
         self.algorithmView.generate_png()
 
-        self.__save_file(file_name)
+        return self.__save_file(file_name)
 
     def export_current_image_as_svg(self):
 
@@ -90,7 +92,7 @@ class ExportView(QWidget):
         # Current algorithm should generate a svg in temp now.
         self.algorithmView.generate_svg()
 
-        self.__save_file(file_name)
+        return self.__save_file(file_name)
 
     def export_current_image_as_dot(self):
 
@@ -99,16 +101,20 @@ class ExportView(QWidget):
         # Current algorithm should generate a svg in temp now.
         self.algorithmView.generate_dot()
         
-        self.__save_file(file_name)
+        return self.__save_file(file_name)
 
     def __save_file(self, file_name):
         # Open a file dialog to allow users to select a folder
         source_folder = QDir.currentPath() + '/temp'
         filename = QFileDialog.getSaveFileName(
             self, "Save File", file_name)
+        # If the dialog is cancelled, return a flag to not proceed further
+        if not filename:
+            return False
         # Copy the file from the source folder to the destination folder
         source_file_path = os.path.join(source_folder, file_name)
         destination_file_path = filename[0]#os.path.join(destination_folder, file_name)
         if QFile.exists(destination_file_path):
             QFile.remove(destination_file_path)
         QFile.copy(source_file_path, destination_file_path)
+        return True

@@ -127,6 +127,7 @@ class MainWindow(QMainWindow):
 
             return
 
+        self.algorithmViews[self.current_Algorithm].generate_png()
         self.exportView.load_algorithm(
             self.algorithmViews[self.current_Algorithm])
         self.mainWidget.setCurrentWidget(self.exportView)
