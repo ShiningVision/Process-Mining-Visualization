@@ -43,7 +43,7 @@ def read(filename, timeLabel = 'timestamp', caseLabel = 'case', eventLabel = 'ev
 
 # DEPRECATED: now using pickle instead
 def save(filename, cases):
-    # Save the cases, so it can be loaded in future sessions without read() again:
+    # Save the cases, so it can be loaded in future sessions without read_cases() again:
     array = cases
 
     name = os.path.splitext(os.path.basename(filename))[0]
@@ -62,3 +62,12 @@ def save(filename, cases):
             if i < len(array) - 1:
                 f.write("\n")
 
+def read_cases(filename):
+    log = []
+    #cwd = os.getcwd()
+    #path = os.path.join(cwd, filename)
+    with open(filename, 'r') as f:
+        for line in f.readlines():
+            assert isinstance(line, str)
+            log.append(list(line.split(",")))
+    return log

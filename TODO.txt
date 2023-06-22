@@ -4,11 +4,11 @@ Line Thickness Cap.  --- DONE
 Replace Dock widgets --- DONE
 Make ColumnSelectionView more appealing ---DONE
 Clustering --- DONE
-HTML-Widget for interactive graph --- Decided on Python Dash with Graphviz--- DONE
+HTML-Widget for interactive graph --- Decided on Python Dash with D3-Graphviz (dash-interactive-graph library)--- DONE
 Make HTML Widget work --- DONE
 Rename HTML Widget --- DONE
-Test files
+Test files --- DONE
 Documentation
 Fresh download testing
-HTML Widget Port probing for free ports...
+HTML Widget Port probing for free ports would be nice
 HTML Widget reload bug fix - DONE

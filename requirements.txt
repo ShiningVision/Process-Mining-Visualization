@@ -1,10 +1,7 @@
-csv
 numpy
 pandas
-pydot
 graphviz
 matplotlib.pyplot
-subprocess
 PyQt5
 matplotlib.backends.backend_qt5agg
 matplotlib.figure
@@ -16,3 +13,4 @@ flask
 dash_interactive_graphviz
 pickle
 networkx
+Werkzeug

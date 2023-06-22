@@ -37,9 +37,9 @@ class DotEditorView(QWidget):
             f.write(new_dot_content)
 
         # Regenerate PNG and display it
-        #self.__dot_to_png()
-        #self.graph_viewer.setScene(self.png_path)
-        self.graph_viewer.setScene(self.filepath)
+        self.__dot_to_png()
+        self.graph_viewer.setScene(self.png_path)
+        #self.graph_viewer.setScene(self.filepath)
 
     # CALL BEFORE USAGE
     def load_file(self):
@@ -58,8 +58,8 @@ class DotEditorView(QWidget):
 
 
         # Show PNG
-        #self.graph_viewer.setScene(self.png_path)
-        self.graph_viewer.setScene(self.filepath)
+        self.graph_viewer.setScene(self.png_path)
+        #self.graph_viewer.setScene(self.filepath)
 
         return 1
     

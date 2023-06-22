@@ -50,4 +50,4 @@ In main.py you need to do the following:
 
 In your [algorithm]_view.py file:
 1. inherit from algorithm_view_interface.py like in heuristic_graph_view.py
-2. The export svg and export png functions of main only copy either graph_viz.png or graph_viz.svg from the temp folder to the desired destination. It is your responsibility to generate those files.
+2. The export svg/png/dot functions in export_view.py only copy graphviz.[file extension] from the temp folder to the desired destination. It is your responsibility to generate those files in the functions required by algorithm_view_interface.py

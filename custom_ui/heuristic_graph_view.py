@@ -1,9 +1,9 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFileDialog, QWidget, QLabel,QVBoxLayout, QHBoxLayout, QFrame
-from mining_algorithms.heuristic_mining import HeuristicMining
+from algorithms.heuristic_mining import HeuristicMining
 from custom_ui.algorithm_view_interface import AlgorithmViewInterface
 from custom_ui.d3_html_widget import HTMLWidget
-from mining_algorithms.pickle_save import pickle_load
+from algorithms.pickle_save import pickle_load
 from custom_ui.custom_widgets import SaveProjectButton, ExportButton, CustomQSlider
 
 class HeuristicGraphView(QWidget, AlgorithmViewInterface):
@@ -17,7 +17,7 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
         self.min_frequency = 1
         self.max_frequency = 100
         self.saveFolder = saveFolder
-        self.workingDirectory = workingDirectory
+        self.workingDirectory = workingDirectory # the working directory is where the graphviz file is stored for display and export
         self.Heuristic_Model = None 
         self.graphviz_graph = None # the graphviz object
 

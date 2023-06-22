@@ -1,7 +1,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QPushButton, QTableWidget, QMessageBox, QTableWidgetItem, QWidget, QVBoxLayout
 from PyQt5.QtGui import QColor
-from mining_algorithms.csv_preprocessor import read
+from algorithms.csv_preprocessor import read
 from custom_ui.custom_widgets import CustomQComboBox
 import csv
 
@@ -177,6 +177,7 @@ class ColumnSelectionView(QWidget):
         
         cases = read(self.filePath, self.timeLabel, self.caseLabel, self.eventLabel)
         if not cases:
+            print("ColumnSelectionView: ERROR Something went wrong when reading cases")
             return
         
         self.parent.mine_new_process(self.filePath, cases, self.selected_algorithm)

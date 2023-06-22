@@ -50,6 +50,7 @@ class MainWindow(QMainWindow):
             self, HeuristicGraphView(self, 'saves/0/'), self.algorithms)
         self.algorithmViews.append(self.heuristicGraphView)
 
+        # This is a placeholder for future algorithm views. DELETE OR REPLACE IT
         self.heuristicGraphView2 = BottomOperationInterfaceWrapper(
             self, HeuristicGraphView(self, 'saves/1/'), self.algorithms)
         self.algorithmViews.append(self.heuristicGraphView2)

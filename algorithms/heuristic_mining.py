@@ -1,6 +1,6 @@
 from graphviz import Digraph
 import numpy as np
-from mining_algorithms.ddcal_clustering import DensityDistributionClusterAlgorithm
+from algorithms.ddcal_clustering import DensityDistributionClusterAlgorithm
 
 class HeuristicMining():
     def __init__(self, log):
