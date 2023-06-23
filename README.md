@@ -8,13 +8,26 @@ This project is in developement. Unfinished and likely contains bugs.
 Python version 3.10.7 ----- Older versions likely to work as well, but not tested.
 Download Python from www.python.org
 
-Required Python libraries are in requirements.txt and can be installed with
+Graphviz
+To install Graphviz, visit the Graphviz website (https://graphviz.org/) and download the appropriate installer for your operating system. Follow the installation instructions provided by the Graphviz project to install it on your system.
+
+After installing Graphviz, open a new terminal or command prompt and run the following command to verify if the dot command is accessible:
+```
+dot -V
+```
+Add Graphviz to the PATH: If the dot command is not found, you need to add the Graphviz executables directory to the system's PATH environment variable. The steps to do this depend on your operating system:
+
+    Windows: Open the "System Properties" window and go to the "Advanced" tab. Click on the "Environment Variables" button, find the "Path" variable in the "System variables" section, and edit it. Add the directory containing the Graphviz executables (e.g., C:\Program Files\Graphviz\bin) to the list of paths. Click "OK" to save the changes.
+    Linux/macOS: Edit the .bashrc or .bash_profile file in your home directory (or the appropriate shell configuration file for your shell). Add the following line at the end of the file, replacing /path/to/graphviz/bin with the actual path to the Graphviz executables:
+    ```
+    export PATH="/path/to/graphviz/bin:$PATH"
+    ```
+    Save the file and restart the terminal for the changes to take effect.
+
+Other required Python libraries are in requirements.txt and can be installed with
 ```
 pip install -r requirements.txt
 ```
-
-PyGraphviz
-This package is notoriously challenging to install. Especially on windows. It is required for the experimental dot editor. If you are not using the "edit dot file" option in the File menu. You don't need it.
 
 
 # Usage Interface

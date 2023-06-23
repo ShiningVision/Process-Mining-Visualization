@@ -59,7 +59,7 @@ class ColumnSelectionView(QWidget):
         self.caseColumn_button.clicked.connect(self.__assign_caseColumn)
         # set up start import button
         self.start_import_button = QPushButton('Start Import', self)
-        self.start_import_button.setFixedSize(80, 60)
+        self.start_import_button.setFixedSize(100, 60)
         self.start_import_button.setStyleSheet(f"background-color: lime; color: {self.textColor};")
         self.start_import_button.clicked.connect(self.__start_import)
 

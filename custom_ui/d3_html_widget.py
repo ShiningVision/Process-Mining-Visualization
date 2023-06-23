@@ -23,6 +23,7 @@ class HTMLWidget(QWidget):
         self.react_signal.connect(self.react)
         self.main_layout = QVBoxLayout()
         self.main_layout.addWidget(self.browser)
+        
         self.setLayout(self.main_layout)
         
 
@@ -34,12 +35,13 @@ class HTMLWidget(QWidget):
         self.server = HTMLServer(self, port)
         self.server.react_signal.connect(self.react)
         self.url = self.server.getURL()
+        
         self.browser.setUrl(QUrl(self.url))
-
+        
         status = self.reload()
         
         self.server.start_server()
-        print('server started')
+        print('server started. Running on '+ str(self.url))
         self.state = True
         return status
     

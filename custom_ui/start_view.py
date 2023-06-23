@@ -1,4 +1,6 @@
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Qt5Agg') # When I tested the project on ubuntu, there was a conflict between Qt5Agg and tkAgg. Program did not run.
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 

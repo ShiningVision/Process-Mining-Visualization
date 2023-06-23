@@ -1,16 +1,12 @@
 numpy
 pandas
 graphviz
-matplotlib.pyplot
+matplotlib
 PyQt5
-matplotlib.backends.backend_qt5agg
-matplotlib.figure
-pygraphviz
 networkx
 ddcal
 dash
 flask
 dash_interactive_graphviz
-pickle
 networkx
 Werkzeug
