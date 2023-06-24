@@ -3,11 +3,11 @@
 import sys
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QLabel, QStyleFactory, QApplication, QMainWindow, QStackedWidget, QMessageBox, QFileDialog
+from api.custom_error import FileNotFoundException, UndefinedErrorException
 from custom_ui.column_selection_view import ColumnSelectionView
 from custom_ui.heuristic_graph_view import HeuristicGraphView
 from custom_ui.start_view import StartView
 from custom_ui.dot_editor_view import DotEditorView
-from custom_ui.deprecated_ui.netx_html_view import NetXHTMLView
 from custom_ui.d3_html_view import D3HTMLView
 from custom_ui.export_view import ExportView
 from custom_ui.custom_widgets import BottomOperationInterfaceWrapper
@@ -111,7 +111,12 @@ class MainWindow(QMainWindow):
 
         # Change to Column Selection View
         self.__reset_canvas()
-        self.columnSelectionView.load_csv(filename)
+        try:
+            self.columnSelectionView.load_csv(filename)
+        except UndefinedErrorException as e:
+            print(e)
+            self.show_pop_up_message(str(e))
+            return
         self.columnSelectionView.load_algorithms(self.algorithms)
         self.mainWidget.setCurrentWidget(self.columnSelectionView)
 
@@ -140,10 +145,11 @@ class MainWindow(QMainWindow):
             self.mainWidget.setCurrentWidget(self.dotEditorView)
 
     def switch_to_html_view(self):
-        errorMessage = self.htmlView.start_server()
-        if errorMessage != '':
-            print("HTMLView2 has encountered an error.")
-            self.show_pop_up_message(errorMessage)
+        try:
+            self.htmlView.start_server()
+        except FileNotFoundException as e:
+            print(e.message)
+            self.show_pop_up_message(e.message)
             return
         self.htmlView.load_algorithm(self.algorithmViews[self.current_Algorithm])
         self.mainWidget.setCurrentWidget(self.htmlView)
@@ -157,6 +163,7 @@ class MainWindow(QMainWindow):
         self.mainWidget.setCurrentWidget(self.startView)
         self.__reset_canvas()
 
+    # used in ColumnSelectionView
     def mine_new_process(self, filepath, cases, algorithm=0):
 
         try:

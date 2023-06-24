@@ -1,6 +1,6 @@
 from graphviz import Digraph
 import numpy as np
-from algorithms.ddcal_clustering import DensityDistributionClusterAlgorithm
+from mining_algorithms.ddcal_clustering import DensityDistributionClusterAlgorithm
 
 class HeuristicMining():
     def __init__(self, log):
@@ -10,9 +10,8 @@ class HeuristicMining():
         self.dependency_matrix = self.__create_dependency_matrix()
 
         # Graph modifiers
-        self.edge_thickness_amplifier = 1.5
-        self.max_edge_thickness = 5
-        self.max_node_size = 10
+        self.min_edge_thickness = 1
+        #self.max_node_size = 10
         self.min_node_size = 2
         self.min_frequency = 1
         self.dependency_threshold = 0.5
@@ -54,7 +53,7 @@ class HeuristicMining():
                     if dependency_threshold == 0:
                         edge_thickness = 0.1
                     else:
-                        edge_thickness = freq_labels_sorted[freq_sorted.index(self.dependency_matrix[i][j])] * self.edge_thickness_amplifier 
+                        edge_thickness = freq_labels_sorted[freq_sorted.index(self.dependency_matrix[i][j])] + self.min_edge_thickness 
 
                     graph.edge(str(self.events[i]), str(self.events[j]), penwidth = str(edge_thickness), label = str(int(self.succession_matrix[i][j])))
 

@@ -4,8 +4,8 @@ There is no auto verification of png-files, since I have not implemented it.
 '''
 
 import unittest
-from algorithms.heuristic_mining import HeuristicMining
-from algorithms.csv_preprocessor import read
+from mining_algorithms.heuristic_mining import HeuristicMining
+from api.csv_preprocessor import read
 
 # I am using networkx here because GRAPHVIZ does not provide ANY GET-FUNCTIONS!
 import networkx as nx

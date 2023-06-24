@@ -1,7 +1,8 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QPushButton, QTableWidget, QMessageBox, QTableWidgetItem, QWidget, QVBoxLayout
 from PyQt5.QtGui import QColor
-from algorithms.csv_preprocessor import read
+from api.csv_preprocessor import read
+from api.custom_error import BadColumnException, UndefinedErrorException
 from custom_ui.custom_widgets import CustomQComboBox
 import csv
 
@@ -19,11 +20,11 @@ class ColumnSelectionView(QWidget):
 
         # assign default labels
         self.timeLabel = "timestamp"
-        self.caseLabel = "case"
         self.eventLabel = "event"
+        self.caseLabel = "case"
         self.timeIndex = 0
-        self.caseIndex = 2
         self.eventIndex = 1
+        self.caseIndex = 2
         self.selected_column = 0
         self.selected_algorithm = 0
         self.filePath = None
@@ -100,7 +101,10 @@ class ColumnSelectionView(QWidget):
         self.filePath = filepath
         with open(filepath, 'r') as file:
             # use csv.Sniffer() to try to detect the delimiter
-            dialect = csv.Sniffer().sniff(file.read(1024))
+            try:
+                dialect = csv.Sniffer().sniff(file.read(1024))
+            except Exception as e:
+                raise UndefinedErrorException("ColumnSelectionView: "+str(e))
             
             # reset the file pointer to the beginning of the file
             file.seek(0)
@@ -117,6 +121,10 @@ class ColumnSelectionView(QWidget):
                 for col_index, col_data in enumerate(row_data):
                     self.table.setItem(row_index, col_index, QTableWidgetItem(col_data))
             
+            # Default assignments
+            self.timeLabel = self.table.horizontalHeaderItem(0).text()
+            self.eventLabel = self.table.horizontalHeaderItem(1).text()
+            self.caseLabel = self.table.horizontalHeaderItem(2).text()
             self.__color_headers()
           
     # CALL BEFORE USAGE
@@ -175,7 +183,12 @@ class ColumnSelectionView(QWidget):
         if ret == QMessageBox.Cancel:
             return
         
-        cases = read(self.filePath, self.timeLabel, self.caseLabel, self.eventLabel)
+        try:
+            cases = read(self.filePath, self.timeLabel, self.caseLabel, self.eventLabel)
+        except BadColumnException as e:
+            print(e.message)
+            return 
+        
         if not cases:
             print("ColumnSelectionView: ERROR Something went wrong when reading cases")
             return

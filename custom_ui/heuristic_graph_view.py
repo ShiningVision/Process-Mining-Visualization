@@ -1,9 +1,10 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFileDialog, QWidget, QLabel,QVBoxLayout, QHBoxLayout, QFrame
-from algorithms.heuristic_mining import HeuristicMining
+from api.custom_error import FileNotFoundException
+from mining_algorithms.heuristic_mining import HeuristicMining
 from custom_ui.algorithm_view_interface import AlgorithmViewInterface
 from custom_ui.d3_html_widget import HTMLWidget
-from algorithms.pickle_save import pickle_load
+from api.pickle_save import pickle_load
 from custom_ui.custom_widgets import SaveProjectButton, ExportButton, CustomQSlider
 
 class HeuristicGraphView(QWidget, AlgorithmViewInterface):
@@ -154,7 +155,10 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
         # Load the image and add it to the QGraphicsScene
         filename = self.workingDirectory + '.dot'
         self.graph_widget.set_source(filename)
-        self.graph_widget.reload()
+        try:
+            self.graph_widget.reload()
+        except FileNotFoundException as e:
+            print(e.message)
 
     def __ensure_graphviz_graph_exists(self):
         # just to make sure everything works as intended.

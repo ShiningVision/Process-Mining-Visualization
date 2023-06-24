@@ -1,6 +1,8 @@
 import pandas as pd
 import csv
 import os
+
+from api.custom_error import BadColumnException
 '''
 For reading in csv files. Returns a list of all cases.
 '''
@@ -16,17 +18,15 @@ def read(filename, timeLabel = 'timestamp', caseLabel = 'case', eventLabel = 'ev
         # check that the required columns exist
     required_columns = [timeLabel, caseLabel, eventLabel]
     if not all(col in df.columns for col in required_columns):
-        print("csv_preprocessor.py: Warning: Required columns not found in DataFrame")
+        raise BadColumnException("csv_preprocessor.py: ERROR: Selected columns not found in DataFrame")
 
-        return 0
-
-        # Sort by timestamp
+        # Sort by timestamp 
     df = df.sort_values(by=[caseLabel, timeLabel])
 
         # create a dictionary to store the events for each case
     cases = {}
 
-    for index, row in df.iterrows():
+    for _, row in df.iterrows():
 
         case = row[caseLabel]
         event = row[eventLabel]
@@ -62,6 +62,7 @@ def save(filename, cases):
             if i < len(array) - 1:
                 f.write("\n")
 
+# DEPRECATED: now using pickle instead
 def read_cases(filename):
     log = []
     #cwd = os.getcwd()

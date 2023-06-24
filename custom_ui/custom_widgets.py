@@ -2,7 +2,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QFileDialog, QSlider, QLabel, QVBoxLayout, QGraphicsView, QGraphicsScene, QComboBox, QPushButton, QHBoxLayout, QVBoxLayout
 from PyQt5.QtGui import QPixmap, QPainter, QTransform
 import os
-from algorithms.pickle_save import pickle_save
+from api.pickle_save import pickle_save
 
 
 # A png viewer with zoom feature.

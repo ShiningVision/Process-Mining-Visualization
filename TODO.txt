@@ -1,14 +1,15 @@
-Errorhandling Required columns not found in DataFrame
+Errorhandling Required columns not found in DataFrame --- DONE
 Startnode/Endnode not singular --- DONE
-Line Thickness Cap.  --- DONE
+Line Thickness Cap. --- using ddcal --- DONE
 Replace Dock widgets --- DONE
-Make ColumnSelectionView more appealing ---DONE
+Make ColumnSelectionView more appealing --- DONE
 Clustering --- DONE
-HTML-Widget for interactive graph --- Decided on Python Dash with D3-Graphviz (dash-interactive-graph library)--- DONE
+HTML-Widget for interactive graph --- Decided on Python Dash with D3-Graphviz (dash-interactive-graph library) --- DONE
 Make HTML Widget work --- DONE
 Rename HTML Widget --- DONE
 Test files --- DONE
 Documentation
-Fresh download testing
+Fresh download testing --- DONE kind of...
 HTML Widget Port probing for free ports would be nice
 HTML Widget reload bug fix - DONE
+Proper Logging?

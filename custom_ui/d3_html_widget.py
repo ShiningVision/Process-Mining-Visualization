@@ -1,3 +1,4 @@
+from api.custom_error import FileNotFoundException
 from custom_ui.server_thread import ServerThread
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QMessageBox
 from PyQt5.QtWebEngineWidgets import QWebEngineView
@@ -38,20 +39,18 @@ class HTMLWidget(QWidget):
         
         self.browser.setUrl(QUrl(self.url))
         
-        status = self.reload()
+        self.reload()
         
         self.server.start_server()
         print('server started. Running on '+ str(self.url))
         self.state = True
-        return status
     
     def reload(self):
         try:
             self.__draw_graph()
             self.browser.reload()
         except FileNotFoundError:
-            return f'FileNotFoundError: {self.dotFile} does not exist'
-        return ''
+            raise FileNotFoundException(f'{self.dotFile} does not exist')
 
     # if the default path is wrong
     def set_source(self, filepath):
