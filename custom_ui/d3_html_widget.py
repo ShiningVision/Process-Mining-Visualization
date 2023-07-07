@@ -8,16 +8,16 @@ from dash import dcc, html, Dash
 from dash.dependencies import Input, Output
 import dash_interactive_graphviz
 
-
+# This HTMLWidget displays a dot file as an interactive graph 
 class HTMLWidget(QWidget):
     react_signal = pyqtSignal(str, str)
-    def __init__(self, parent):
+    def __init__(self, parent, dotFile = "temp/graph_viz.dot"):
         super().__init__()
         self.parent = parent
         self.state = False
 
         # default variables
-        self.dotFile = "temp/graph_viz.dot"
+        self.dotFile = dotFile
 
         # Define the widget and its layout
         self.browser = QWebEngineView()

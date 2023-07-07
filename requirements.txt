@@ -3,10 +3,12 @@ pandas
 graphviz
 matplotlib
 PyQt5
-networkx
 ddcal
 dash
 flask
 dash_interactive_graphviz
-networkx
 Werkzeug
+
+# These are for unittesting:
+networkx
+pydot

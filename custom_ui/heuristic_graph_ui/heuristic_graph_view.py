@@ -1,10 +1,9 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFileDialog, QWidget, QLabel,QVBoxLayout, QHBoxLayout, QFrame
 from api.custom_error import FileNotFoundException
-from mining_algorithms.heuristic_mining import HeuristicMining
+from custom_ui.heuristic_graph_ui.heuristic_graph_controller import HeuristicGraphController
 from custom_ui.algorithm_view_interface import AlgorithmViewInterface
 from custom_ui.d3_html_widget import HTMLWidget
-from api.pickle_save import pickle_load
 from custom_ui.custom_widgets import SaveProjectButton, ExportButton, CustomQSlider
 
 class HeuristicGraphView(QWidget, AlgorithmViewInterface):
@@ -19,7 +18,7 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
         self.max_frequency = 100
         self.saveFolder = saveFolder
         self.workingDirectory = workingDirectory # the working directory is where the graphviz file is stored for display and export
-        self.Heuristic_Model = None 
+        self.HeuristicGraphController = HeuristicGraphController(workingDirectory) 
         self.graphviz_graph = None # the graphviz object
 
         self.graph_widget = HTMLWidget(parent)
@@ -62,8 +61,8 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
     def startMining(self, filename, cases):
 
         self.saveProject_button.load_filename(filename)
-        self.Heuristic_Model = HeuristicMining(cases)
-        self.max_frequency = self.Heuristic_Model.get_max_frequency()
+        self.HeuristicGraphController.startMining(cases)
+        self.max_frequency = self.HeuristicGraphController.get_max_frequency()
         self.freq_slider.setRange(1,self.max_frequency)
         self.graph_widget.start_server()
         self.initialized=True
@@ -72,24 +71,28 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
     # CALL BEFORE USAGE (option 2 for mining existing models)
     def loadModel(self):
         try:
-            filename, model = self.__load()
-            if model == -1:
+            file_path, _ = QFileDialog.getOpenFileName(None, "Select file", self.saveFolder, "Pickle files (*.pickle)")
+            # If the user cancels the file dialog, return
+            if not file_path:
                 return -1
-        except TypeError:
-            print("HeuristicGraphView loadModel(): Error: Something went wrong while loading an existing model.")
+            filename = self.HeuristicGraphController.loadModel(file_path)
+            if filename == -1:
+                return -1
+        except TypeError as e:
+            message = "HeuristicGraphView loadModel(): Error: Something went wrong while loading an existing model."
+            print(str(e))
+            self.parent.show_pop_up_message(message, 6000)
             return -1
         
-        #self.filename= filename
         self.saveProject_button.load_filename(filename)
-        self.Heuristic_Model = model
-        self.max_frequency = self.Heuristic_Model.get_max_frequency()
+        self.max_frequency = self.HeuristicGraphController.get_max_frequency()
 
         # set the first slider
-        self.min_frequency = self.Heuristic_Model.get_min_freq()
+        self.min_frequency = self.HeuristicGraphController.get_min_frequency()
         self.freq_slider.setText(f"Min. Frequency: {self.min_frequency}")
 
         # set the second slider
-        self.dependency_threshold = self.Heuristic_Model.get_threshold()
+        self.dependency_threshold = self.HeuristicGraphController.get_threshold()
         self.thresh_slider.setText(f"Dependency Threshold: {self.dependency_threshold:.2f}")
         
         # Using setValue triggers valueChanged(). 
@@ -108,7 +111,7 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
 
     # this function is given to the Save Project button. It is called whenever we save the model.
     def getModel(self):
-        return self.Heuristic_Model
+        return self.HeuristicGraphController.getModel()
     
     def __freq_slider_changed(self, value):
 
@@ -135,22 +138,10 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
     
         self.__mine_and_draw()
 
-    def __load(self):
-        
-        file_path, _ = QFileDialog.getOpenFileName(None, "Select file", self.saveFolder, "Pickle files (*.pickle)")
-        # If the user cancels the file dialog, return
-        if not file_path:
-            return -1, -1
-        return file_path, pickle_load(file_path)
-
     def __mine_and_draw(self):
 
         '''with graphviz'''
-        self.graphviz_graph = self.Heuristic_Model.create_dependency_graph_with_graphviz(self.dependency_threshold,self.min_frequency)
-        
-        # generate dot
-        self.graphviz_graph.render(self.workingDirectory,format = 'dot')
-        print("heuristic_graph_view: CSV mined")
+        self.graphviz_graph = self.HeuristicGraphController.create_dependency_graph(self.dependency_threshold,self.min_frequency)
 
         # Load the image and add it to the QGraphicsScene
         filename = self.workingDirectory + '.dot'

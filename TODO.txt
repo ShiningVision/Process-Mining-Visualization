@@ -12,4 +12,5 @@ Documentation
 Fresh download testing --- DONE kind of...
 HTML Widget Port probing for free ports would be nice
 HTML Widget reload bug fix - DONE
-Proper Logging?
+Proper Logging library
+localhost notification which port is used in case of blank page.

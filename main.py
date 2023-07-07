@@ -5,7 +5,7 @@ from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QLabel, QStyleFactory, QApplication, QMainWindow, QStackedWidget, QMessageBox, QFileDialog
 from api.custom_error import FileNotFoundException, UndefinedErrorException
 from custom_ui.column_selection_view import ColumnSelectionView
-from custom_ui.heuristic_graph_view import HeuristicGraphView
+from custom_ui.heuristic_graph_ui.heuristic_graph_view import HeuristicGraphView
 from custom_ui.start_view import StartView
 from custom_ui.dot_editor_view import DotEditorView
 from custom_ui.d3_html_view import D3HTMLView
@@ -198,8 +198,7 @@ class MainWindow(QMainWindow):
         self.mainWidget.setCurrentWidget(self.algorithmViews[algorithm])
 
     # shows a quick status update/warning
-    def show_pop_up_message(self, message):
-        duration = 3000
+    def show_pop_up_message(self, message, duration = 3000):
         # create a QLabel widget and set its text
         label = QLabel(message, self)
 

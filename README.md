@@ -2,7 +2,8 @@
 Implementation of a desktop app for importing event logs, mining and visualizing process models by using different algorithms (like alpha miner, heuristic miner, inductive miner, fuzzy miner) and metrics for filtering nodes and edges on mined process models. Mined process models can be exported as images.
 
 # Status
-This project is in developement. Unfinished and likely contains bugs.
+This project is at version 0.1.0
+Ready for use. Hopefully no severe bugs.
 
 # Requirements
 Python version 3.10.7 ----- Older versions likely to work as well, but not tested.

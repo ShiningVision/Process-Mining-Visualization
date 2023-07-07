@@ -76,7 +76,7 @@ class HeuristicMining():
                 max_freq= value
         return max_freq
     
-    def get_min_freq(self):
+    def get_min_frequency(self):
         return self.min_frequency
     
     def get_threshold(self):
@@ -118,7 +118,6 @@ class HeuristicMining():
         
         return start_nodes
         
-    
     def __get_end_nodes(self):
         #an end node is a node where an entire row in the succession_matrix is 0.
         end_nodes = []
