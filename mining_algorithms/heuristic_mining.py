@@ -12,7 +12,7 @@ class HeuristicMining():
         # Graph modifiers
         self.min_edge_thickness = 1
         #self.max_node_size = 10
-        self.min_node_size = 2
+        self.min_node_size = 1.5
         self.min_frequency = 1
         self.dependency_threshold = 0.5
     
@@ -32,10 +32,10 @@ class HeuristicMining():
         # add nodes to graph
         for node in self.events:
             node_freq = self.appearence_frequency.get(node)
-            # w = self.min_node_size + (node_freq/max_freq)*(self.max_node_size-self.min_node_size)
-            w = freq_labels_sorted[freq_sorted.index(node_freq)] + self.min_node_size
-            h = w/2
-            graph.node(str(node), label = str(node)+"\n"+str(node_freq),width = str(w), height = str(h))
+            w = freq_labels_sorted[freq_sorted.index(node_freq)]/2 + self.min_node_size
+            h = w/3
+            #graph.node(str(node), label = str(node)+"\n"+str(node_freq),width = str(w), height = str(h))
+            graph.node(str(node), label = str(node)+"\n"+str(node_freq),width = str(w), height = str(h), shape="box")
 
         # cluster the edge thickness sizes based on frequency
         edge_frequencies = self.dependency_matrix.flatten()
