@@ -13,12 +13,14 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
         self.initialized = False
 
         #modifiers and global variables
-        self.dependency_threshold = 0.5
-        self.min_frequency = 1
+        self.default_dependency_threshold = 0.5
+        self.dependency_threshold = self.default_dependency_threshold
+        self.default_min_frequency = 1
+        self.min_frequency = self.default_min_frequency
         self.max_frequency = 100
         self.saveFolder = saveFolder
         self.workingDirectory = workingDirectory # the working directory is where the graphviz file is stored for display and export
-        self.HeuristicGraphController = HeuristicGraphController(workingDirectory) 
+        self.HeuristicGraphController = HeuristicGraphController(workingDirectory, self.dependency_threshold, self.min_frequency) 
         self.graphviz_graph = None # the graphviz object
 
         self.graph_widget = HTMLWidget(parent)
@@ -62,8 +64,13 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
 
         self.saveProject_button.load_filename(filename)
         self.HeuristicGraphController.startMining(cases)
+        
+        self.min_frequency = self.default_min_frequency
+        self.dependency_threshold = self.default_dependency_threshold
         self.max_frequency = self.HeuristicGraphController.get_max_frequency()
         self.freq_slider.setRange(1,self.max_frequency)
+        self.__set_slider_values(self.min_frequency,self.dependency_threshold)
+
         self.graph_widget.start_server()
         self.initialized=True
         self.__mine_and_draw()
@@ -85,26 +92,14 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
             return -1
         
         self.saveProject_button.load_filename(filename)
+
         self.max_frequency = self.HeuristicGraphController.get_max_frequency()
-
-        # set the first slider
-        self.min_frequency = self.HeuristicGraphController.get_min_frequency()
-        self.freq_slider.setText(f"Min. Frequency: {self.min_frequency}")
-
-        # set the second slider
-        self.dependency_threshold = self.HeuristicGraphController.get_threshold()
-        self.thresh_slider.setText(f"Dependency Threshold: {self.dependency_threshold:.2f}")
-        
-        # Using setValue triggers valueChanged(). 
-        # If the function below setValue, calls a model function,
-        # it leads to what I can only assume is undefined behaviour.
-        # This bug also only occurs on initial loadModel(). 
-        # All consequent loadModel function calls work just fine for some reason.
-        # To bypass this weird bug, I call the model functions first BEFORE I setValue() 
-        self.freq_slider.setValue(self.min_frequency)
-        self.thresh_slider.setValue(int(self.dependency_threshold*100))
-        
         self.freq_slider.setRange(1,self.max_frequency)
+        self.min_frequency = self.HeuristicGraphController.get_min_frequency()
+        self.dependency_threshold = self.HeuristicGraphController.get_threshold()
+        
+        self.__set_slider_values(self.min_frequency,self.dependency_threshold)
+        
         self.graph_widget.start_server()
         self.initialized = True
         self.__mine_and_draw()
@@ -137,6 +132,12 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
         self.dependency_threshold = value/100
     
         self.__mine_and_draw()
+
+    def __set_slider_values(self, min_freq, threshold):
+        self.thresh_slider.setText(f"Dependency Threshold: {threshold:.2f}")
+        self.freq_slider.setText(f"Min. Frequency: {min_freq}")
+        self.thresh_slider.setValue(int(threshold*100))
+        self.freq_slider.setValue(min_freq)
 
     def __mine_and_draw(self):
 
