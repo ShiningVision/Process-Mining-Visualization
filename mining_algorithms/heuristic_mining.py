@@ -23,7 +23,6 @@ class HeuristicMining():
 
         # create graph
         graph = Digraph()
-
         # cluster the node sizes based on frequency
         cluster = DensityDistributionClusterAlgorithm(list(self.appearence_frequency.values()))
         freq_sorted = list(cluster.sorted_data)
@@ -35,7 +34,7 @@ class HeuristicMining():
             w = freq_labels_sorted[freq_sorted.index(node_freq)]/2 + self.min_node_size
             h = w/3
             #graph.node(str(node), label = str(node)+"\n"+str(node_freq),width = str(w), height = str(h))
-            graph.node(str(node), label = str(node)+"\n"+str(node_freq),width = str(w), height = str(h), shape="box")
+            graph.node(str(node), label = str(node)+"\n"+str(node_freq),width = str(w), height = str(h), shape="box", style = "rounded")
 
         # cluster the edge thickness sizes based on frequency
         edge_frequencies = self.dependency_matrix.flatten()
