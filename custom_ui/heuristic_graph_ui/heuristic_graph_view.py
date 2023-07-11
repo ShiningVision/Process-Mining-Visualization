@@ -144,7 +144,7 @@ class HeuristicGraphView(QWidget, AlgorithmViewInterface):
         '''with graphviz'''
         self.graphviz_graph = self.HeuristicGraphController.create_dependency_graph(self.dependency_threshold,self.min_frequency)
 
-        # Load the image and add it to the QGraphicsScene
+        # Load the image
         filename = self.workingDirectory + '.dot'
         self.graph_widget.set_source(filename)
         try:
